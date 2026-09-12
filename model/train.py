@@ -34,6 +34,7 @@ def main() -> None:
     parser.add_argument("--learning-rate", type=float, default=3e-4)
     parser.add_argument("--seed", type=int, default=2026)
     parser.add_argument("--pretrained-weights", default=None, help="Path to checkpoint weights to warm-start fine-tuning")
+    parser.add_argument("--resume", action="store_true", help="Resume training from existing checkpoint in output_dir")
     args = parser.parse_args()
 
     import numpy as np
@@ -78,32 +79,64 @@ def main() -> None:
     backbone = efficientnet_b0(weights=EfficientNet_B0_Weights.DEFAULT)
     backbone.classifier[1] = nn.Linear(backbone.classifier[1].in_features, len(classes))
     model = backbone.to(device)
-    if args.pretrained_weights and Path(args.pretrained_weights).is_file():
+
+    best_f1, history, start_epoch = -1.0, [], 1
+    if args.resume and (output / "best_model.pt").is_file():
+        print(f"Resuming from existing checkpoint: {output / 'best_model.pt'}", flush=True)
+        checkpoint_state = torch.load(output / "best_model.pt", map_location=device, weights_only=True)
+        model.load_state_dict(checkpoint_state)
+        if (output / "history.json").is_file():
+            try:
+                history = json.loads((output / "history.json").read_text(encoding="utf-8"))
+                start_epoch = len(history) + 1
+                best_f1 = max((h["val_macro_f1"] for h in history), default=-1.0)
+                print(f"Loaded existing history ({len(history)} epochs completed, best Macro-F1: {best_f1:.4f})", flush=True)
+            except Exception as e:
+                print(f"Could not parse history.json: {e}", flush=True)
+    elif args.pretrained_weights and Path(args.pretrained_weights).is_file():
         print(f"Warm-starting from pretrained checkpoint: {args.pretrained_weights}", flush=True)
         checkpoint_state = torch.load(args.pretrained_weights, map_location=device, weights_only=True)
         model.load_state_dict(checkpoint_state)
+
     loss_fn = nn.CrossEntropyLoss(weight=weights.to(device), label_smoothing=0.05)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
-    best_f1, history = -1.0, []
-    for epoch in range(1, args.epochs + 1):
-        print(f"Starting epoch {epoch}/{args.epochs}...", flush=True)
+    scaler = torch.cuda.amp.GradScaler(enabled=(device == "cuda"))
+
+    if start_epoch > args.epochs:
+        print(f"Already completed {len(history)} epochs (target: {args.epochs}). Nothing to train.", flush=True)
+
+    for epoch in range(start_epoch, args.epochs + 1):
+        print(f"\nStarting epoch {epoch}/{args.epochs}...", flush=True)
         model.train(); running = 0.0
-        for images, targets in train_loader:
+        for batch_idx, (images, targets) in enumerate(train_loader, 1):
             optimizer.zero_grad(set_to_none=True)
-            logits = model(images.to(device)); loss = loss_fn(logits, targets.to(device))
-            loss.backward(); optimizer.step(); running += float(loss.detach()) * len(targets)
+            with torch.amp.autocast(device_type=device, enabled=(device == "cuda")):
+                logits = model(images.to(device))
+                loss = loss_fn(logits, targets.to(device))
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+            running += float(loss.detach()) * len(targets)
+            if batch_idx % 150 == 0 or batch_idx == len(train_loader):
+                print(f"  [Epoch {epoch}] Batch {batch_idx}/{len(train_loader)} - Batch Loss: {loss.item():.4f}", flush=True)
+
         model.eval(); actual, outputs = [], []
+        print(f"Evaluating epoch {epoch} on validation set ({len(val_ds)} images)...", flush=True)
         with torch.inference_mode():
             for images, targets in val_loader:
-                outputs.extend(model(images.to(device)).argmax(dim=1).cpu().tolist()); actual.extend(targets.tolist())
+                with torch.amp.autocast(device_type=device, enabled=(device == "cuda")):
+                    preds = model(images.to(device)).argmax(dim=1).cpu().tolist()
+                outputs.extend(preds); actual.extend(targets.tolist())
         macro_f1 = f1_score(actual, outputs, average="macro", zero_division=0)
         history.append({"epoch": epoch, "train_loss": running / len(train_ds), "val_macro_f1": macro_f1})
         (output / "history.json").write_text(json.dumps(history, indent=2), encoding="utf-8")
-        print(json.dumps(history[-1]), flush=True)
+        print(f"Epoch {epoch} Result: {json.dumps(history[-1])}", flush=True)
         if macro_f1 > best_f1:
             best_f1 = macro_f1
             torch.save(model.cpu().state_dict(), output / "best_model.pt")
             model.to(device)
+            print(f"New best model saved! (Macro-F1: {best_f1:.4f})", flush=True)
+
     config = vars(args) | {"created_at": datetime.now(timezone.utc).isoformat(), "classes": classes, "device": device, "best_validation_macro_f1": best_f1, "class_counts": {classes[i]: counts[i] for i in range(len(classes))}, "augmentation": "crop/flip/rotation/color/blur", "held_out_test_used": False}
     (output / "training_config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
     print(json.dumps({"best_validation_macro_f1": best_f1, "artifact": str(output / "best_model.pt")}))
