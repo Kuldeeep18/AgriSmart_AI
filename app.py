@@ -48,6 +48,11 @@ with app.app_context():
         if CropStandard.query.count() == 0:
             from seed_crops import seed_database
             seed_database()
+        
+        # Check if Demo User is seeded
+        if User.query.filter_by(email="demo@agrismart.ai").count() == 0:
+            from seed_demo_data import seed_demo_platform
+            seed_demo_platform()
     except Exception as e:
         print(f"[BioGrow Warning] Seed database check: {e}")
 
@@ -56,6 +61,25 @@ with app.app_context():
 @app.route("/")
 def home():
     return render_template("HomePage/home_page.html")
+
+
+# ---------------- DEMO LOGIN ----------------
+@app.route("/demo-login")
+def demo_login():
+    demo_user = User.query.filter_by(email="demo@agrismart.ai").first()
+    if not demo_user:
+        from seed_demo_data import seed_demo_platform
+        seed_demo_platform()
+        demo_user = User.query.filter_by(email="demo@agrismart.ai").first()
+
+    session["user_id"] = demo_user.user_id
+    session["full_name"] = demo_user.full_name
+    session["initials"] = get_initials(demo_user.full_name)
+    session["location"] = demo_user.location
+    session["badge"] = demo_user.badge
+    give_daily_bonus(demo_user.user_id)
+    flash(f"Welcome back, {demo_user.full_name}! 🌾", "success")
+    return redirect(url_for("crop_tracking.crop_tracking"))
 
 
 # ---------------- LOGIN ----------------

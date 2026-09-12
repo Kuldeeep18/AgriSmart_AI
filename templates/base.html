@@ -57,19 +57,27 @@
                             href="{{ url_for('community.farmer_community') }}">Community</a>
                     </li>
 
+                    {% if session.get('user_id') %}
                     <li class="nav-item dropdown">
                         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle"
                             data-bs-toggle="dropdown">
-                            <div class="avatar-circle bg-success text-white fw-bold">{{ session['initials'] }}</div>
+                            <div class="avatar-circle bg-success text-white fw-bold shadow-sm">{{ session.get('initials', 'F') }}</div>
+                            <span class="ms-2 d-none d-lg-inline small text-dark fw-bold">{{ session.get('full_name', 'Farmer') }}</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                            <li class="px-3 py-1">
+                                <span class="badge bg-success-subtle text-success small rounded-pill px-2 py-1">{{ session.get('badge', 'Farmer') }}</span>
+                            </li>
+                            <li>
+                                <hr class="dropdown-divider my-1">
+                            </li>
                             <li>
                                 <a class="dropdown-item" href="{{ url_for('profile') }}">
-                                    <i class="fa fa-user me-2"></i> Profile
+                                    <i class="fa fa-user me-2 text-success"></i> Profile
                                 </a>
                             </li>
                             <li>
-                                <hr class="dropdown-divider">
+                                <hr class="dropdown-divider my-1">
                             </li>
                             <li>
                                 <a class="dropdown-item text-danger" href="{{ url_for('logout') }}">
@@ -78,6 +86,13 @@
                             </li>
                         </ul>
                     </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('login') }}" class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-bold shadow-sm">
+                            <i class="fa fa-sign-in-alt me-1"></i> Login
+                        </a>
+                    </li>
+                    {% endif %}
 
                 </ul>
             </div>

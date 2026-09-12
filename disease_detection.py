@@ -76,7 +76,61 @@ def api_esp32_capture():
     if "error" in result:
         return jsonify(result), 422
         
+SAMPLE_LEAF_DATA = {
+    "tomato_blight": {
+        "title": "Tomato Late Blight",
+        "crop": "Tomato",
+        "path": "data/val/Tomato___Late_blight/008ebb44-eb77-4843-b621-4b88b5df7d43___RS_Late.B 5188.JPG"
+    },
+    "tomato_healthy": {
+        "title": "Tomato Healthy Leaf",
+        "crop": "Tomato",
+        "path": "data/val/Tomato___healthy/0326b4b6-0f25-47af-bfd9-d8fec314a4f5___RS_HL 0621.JPG"
+    },
+    "corn_blight": {
+        "title": "Corn Leaf Blight",
+        "crop": "Corn (Maize)",
+        "path": "data/val/Corn_(maize)___Northern_Leaf_Blight/00a14441-7a62-4034-bc40-b196aeab2785___RS_NLB 3932.JPG"
+    },
+    "potato_blight": {
+        "title": "Potato Early Blight",
+        "crop": "Potato",
+        "path": "data/val/Potato___Early_blight/044c3abc-0bc9-45fb-8fd5-094aeb605f90___RS_Early.B 8044.JPG"
+    },
+    "apple_scab": {
+        "title": "Apple Scab (In-Field)",
+        "crop": "Apple",
+        "path": "data/val/Apple___Apple_scab/0395b847-2c73-4674-826f-33a6afb5b4fe___FREC_Scab 3287.JPG"
+    }
+}
+
+@disease_bp.route("/api/disease/sample/<sample_id>", methods=["POST"])
+def api_sample_predict(sample_id):
+    import base64
+    if sample_id not in SAMPLE_LEAF_DATA:
+        return jsonify({"error": f"Sample ID '{sample_id}' not found."}), 404
+        
+    sample_info = SAMPLE_LEAF_DATA[sample_id]
+    rel_path = sample_info["path"]
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(base_dir, rel_path)
+    
+    if not os.path.exists(full_path):
+        return jsonify({"error": f"Sample image file not found: {rel_path}"}), 404
+        
+    with open(full_path, "rb") as f:
+        payload = f.read()
+        
+    result = predict_leaf_disease(payload)
+    if "error" in result:
+        return jsonify(result), 422
+        
+    b64_str = base64.b64encode(payload).decode("utf-8")
+    result["image_data_url"] = f"data:image/jpeg;base64,{b64_str}"
+    result["sample_title"] = sample_info["title"]
+    result["suggested_crop"] = sample_info["crop"]
     return jsonify(result)
+
 
 @disease_bp.route("/api/advisory", methods=["POST"])
 def api_advisory():
