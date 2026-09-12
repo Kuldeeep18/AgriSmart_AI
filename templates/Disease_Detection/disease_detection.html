@@ -92,6 +92,25 @@
                     </ul>
                 </div>
 
+                {% if session.get('user_id') and user_crops %}
+                <div class="mb-3 p-3 bg-light rounded-4 border">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label class="form-label small fw-bold text-dark mb-0">
+                            <i class="fa fa-map-marker-alt text-success me-1"></i> Active Farm for this Scan:
+                        </label>
+                        <span class="badge bg-success-subtle text-success small px-2 py-1 rounded-pill">Connected</span>
+                    </div>
+                    <select id="userFarmSelect" class="form-select form-select-sm mt-2 rounded-3">
+                        <option value="">-- General Foliage Scan (Not linked to a specific farm) --</option>
+                        {% for farm in user_crops %}
+                        <option value="{{ farm.user_crop_id }}" data-crop="{{ farm.standard.display_name if farm.standard else 'Crop' }}">
+                            🚜 {{ farm.farm_name }} ({{ farm.standard.display_name if farm.standard else 'Crop' }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
                 <div class="tab-content pt-2" id="scanTabContent">
                     <!-- 1. FILE UPLOAD -->
                     <div class="tab-pane fade show active" id="panel-upload" role="tabpanel">
@@ -181,6 +200,16 @@
                         <h6 class="fw-bold text-muted small text-uppercase mb-2">Top Differential Diagnoses:</h6>
                         <div id="alternativesList" class="d-flex flex-wrap gap-2"></div>
                     </div>
+
+                    <!-- Save to Farm Section (if logged in) -->
+                    {% if session.get('user_id') and user_crops %}
+                    <div id="saveToFarmSection" class="mt-3 pt-3 border-top">
+                        <button type="button" class="btn btn-success action-btn-pill w-100 shadow-sm" id="btnSaveToFarm">
+                            <i class="fa fa-file-medical me-1"></i> Log Diagnosis to Selected Farm (+10 Pts)
+                        </button>
+                        <div id="saveToFarmFeedback" class="mt-2 text-center small fw-semibold"></div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -188,7 +217,14 @@
         <!-- RIGHT COLUMN: SMART IRRIGATION ADVISORY -->
         <div class="col-lg-5">
             <div class="card scanner-card shadow-sm h-100 p-4">
-                <h4 class="fw-bold mb-1 text-dark"><i class="fa fa-tint text-primary me-2"></i>Smart Irrigation Advisor</h4>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h4 class="fw-bold mb-0 text-dark"><i class="fa fa-tint text-primary me-2"></i>Smart Irrigation Advisor</h4>
+                    {% if session.get('user_id') and user_crops %}
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1" id="btnAutofillAdvisory" title="Auto-fill from selected active farm">
+                        <i class="fa fa-magic me-1"></i> Auto-fill Farm
+                    </button>
+                    {% endif %}
+                </div>
                 <p class="text-muted small mb-4">Input live farm sensor parameters to generate an auditable irrigation decision.</p>
 
                 <form id="advisoryForm">
@@ -256,6 +292,7 @@
 {% block js %}
 <script>
 let mediaStream = null;
+let latestDiagnosisData = null;
 
 function previewUploadImage(event) {
     const file = event.target.files[0];
@@ -272,6 +309,7 @@ function previewUploadImage(event) {
 
 // Render Disease Result
 function renderDiseaseResult(data) {
+    latestDiagnosisData = data;
     const container = document.getElementById('diagnosisContainer');
     container.classList.remove('d-none');
     
@@ -500,5 +538,75 @@ document.getElementById('advisoryForm').addEventListener('submit', async functio
         btn.innerHTML = '<i class="fa fa-calculator me-1"></i> Calculate Irrigation Action';
     }
 });
+
+// 5. Save Diagnosis to Farm
+const btnSaveToFarm = document.getElementById('btnSaveToFarm');
+if (btnSaveToFarm) {
+    btnSaveToFarm.addEventListener('click', async () => {
+        const farmSelect = document.getElementById('userFarmSelect');
+        const farmId = farmSelect ? farmSelect.value : null;
+        const feedback = document.getElementById('saveToFarmFeedback');
+
+        if (!farmId) {
+            alert('Please select an active farm from the dropdown at the top of the scanner.');
+            if (farmSelect) farmSelect.focus();
+            return;
+        }
+
+        if (!latestDiagnosisData) {
+            alert('No foliage scan available to save.');
+            return;
+        }
+
+        btnSaveToFarm.disabled = true;
+        btnSaveToFarm.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Saving to Field Record...';
+
+        try {
+            const res = await fetch('/api/disease/save_to_farm', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_crop_id: parseInt(farmId),
+                    disease_label: latestDiagnosisData.label,
+                    confidence: latestDiagnosisData.confidence,
+                    precautions: latestDiagnosisData.precautions || []
+                })
+            });
+            const resData = await res.json();
+            if (resData.error) {
+                feedback.className = 'mt-2 text-center small text-danger fw-semibold';
+                feedback.textContent = resData.error;
+            } else {
+                feedback.className = 'mt-2 text-center small text-success fw-semibold';
+                feedback.innerHTML = `<i class="fa fa-check-circle me-1"></i> ${resData.message}`;
+            }
+        } catch (err) {
+            feedback.className = 'mt-2 text-center small text-danger fw-semibold';
+            feedback.textContent = 'Failed to save: ' + err.message;
+        } finally {
+            btnSaveToFarm.disabled = false;
+            btnSaveToFarm.innerHTML = '<i class="fa fa-file-medical me-1"></i> Log Diagnosis to Selected Farm (+10 Pts)';
+        }
+    });
+}
+
+// 6. Auto-fill Advisory from Selected Farm
+const btnAutofill = document.getElementById('btnAutofillAdvisory');
+if (btnAutofill) {
+    btnAutofill.addEventListener('click', () => {
+        const farmSelect = document.getElementById('userFarmSelect');
+        if (!farmSelect || !farmSelect.value) {
+            alert('Please select a farm from the dropdown above to auto-fill its crop details.');
+            return;
+        }
+        const selectedOpt = farmSelect.options[farmSelect.selectedIndex];
+        const cropName = selectedOpt.getAttribute('data-crop') || 'Tomato';
+        
+        const cropInput = document.querySelector('#advisoryForm input[name="crop"]');
+        if (cropInput) {
+            cropInput.value = cropName.split(' ')[0].split('(')[0].trim();
+        }
+    });
+}
 </script>
 {% endblock %}

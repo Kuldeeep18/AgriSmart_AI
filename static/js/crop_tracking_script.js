@@ -77,6 +77,42 @@ farmSelect.addEventListener('change', async function() {
             });
 
             activeFarmInput.value = farmId;
+
+            // Populate Latest Health Record
+            const healthBox = document.getElementById('farmHealthBadgeContainer');
+            if (healthBox) {
+                if (data.latest_disease) {
+                    const isHealthy = data.latest_disease.label.toLowerCase().includes('healthy');
+                    const badgeColor = isHealthy ? 'success' : 'danger';
+                    healthBox.className = `alert alert-${badgeColor} border-0 rounded-4 d-flex flex-wrap justify-content-between align-items-center mb-4 shadow-sm`;
+                    healthBox.innerHTML = `
+                        <div>
+                            <strong class="d-block text-${badgeColor}"><i class="fa fa-notes-medical me-1"></i> Latest Foliage Health Record:</strong>
+                            <span class="text-dark fw-semibold">${data.latest_disease.label}</span>
+                            <span class="badge bg-${badgeColor} rounded-pill ms-2">${data.latest_disease.confidence}% Confidence</span>
+                            <small class="text-muted d-block mt-1">Logged on ${data.latest_disease.date}</small>
+                        </div>
+                        <div class="mt-2 mt-sm-0">
+                            <a href="/disease_detection" class="btn btn-sm btn-${badgeColor} rounded-pill px-3 shadow-sm">
+                                <i class="fa fa-camera me-1"></i> Rescan Foliage
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    healthBox.className = 'alert alert-light border rounded-4 d-flex flex-wrap justify-content-between align-items-center mb-4 shadow-sm';
+                    healthBox.innerHTML = `
+                        <div>
+                            <span class="text-muted"><i class="fa fa-leaf text-success me-1"></i> No foliage diagnosis logged for this farm yet.</span>
+                        </div>
+                        <div class="mt-2 mt-sm-0">
+                            <a href="/disease_detection" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                <i class="fa fa-camera me-1"></i> Scan Leaf Now
+                            </a>
+                        </div>
+                    `;
+                }
+            }
+
             formContainer.classList.remove('d-none');
         }
         else {

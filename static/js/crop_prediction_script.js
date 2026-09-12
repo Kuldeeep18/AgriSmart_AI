@@ -193,3 +193,40 @@ downloadPdfBtn.addEventListener("click", function(event) {
     // the browser aborts the redirect and instead downloads the PDF file natively.
     window.location.href = `/download_report/${reportId}`;
 });
+
+const addFarmBtn = document.getElementById("addFarmFromPredBtn");
+if (addFarmBtn) {
+    addFarmBtn.addEventListener("click", async function() {
+        const cropName = document.getElementById("cropName").innerText.trim();
+        const feedback = document.getElementById("addFarmFeedback");
+        if (!cropName) {
+            alert("No crop recommendation available to save.");
+            return;
+        }
+
+        addFarmBtn.disabled = true;
+        addFarmBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Adding to Farm Hub...';
+
+        try {
+            const res = await fetch('/api/create_farm_from_prediction', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ crop_name: cropName })
+            });
+            const data = await res.json();
+            if (data.error) {
+                feedback.className = "small text-center text-danger fw-semibold mt-1";
+                feedback.textContent = data.error;
+            } else {
+                feedback.className = "small text-center text-success fw-semibold mt-1";
+                feedback.innerHTML = `<i class="fa fa-check-circle me-1"></i> ${data.message} <a href="${data.redirect_url}" class="alert-link text-decoration-underline ms-1">View in Crop Tracking →</a>`;
+            }
+        } catch (err) {
+            feedback.className = "small text-center text-danger fw-semibold mt-1";
+            feedback.textContent = "Failed to add farm: " + err.message;
+        } finally {
+            addFarmBtn.disabled = false;
+            addFarmBtn.innerHTML = '<i class="fa fa-plus-circle"></i> Add to My Farms & Start Tracking';
+        }
+    });
+}

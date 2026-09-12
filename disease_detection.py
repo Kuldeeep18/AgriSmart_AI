@@ -5,6 +5,11 @@ from urllib.error import URLError
 from urllib.request import urlopen
 from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
 
+from datetime import date
+import json
+
+from extensions import db
+from models import UserCrop, CropLog
 from utils.disease_model import predict_leaf_disease, get_active_predictor
 from fieldguard.services.advisory import irrigation_advice, sustainability_score
 from fieldguard.schemas import SensorContext
@@ -15,10 +20,15 @@ MAX_UPLOAD_BYTES = 8 * 1024 * 1024
 @disease_bp.route("/disease_detection")
 def disease_detection():
     predictor, model_mode, model_notice = get_active_predictor()
+    user_crops = []
+    if "user_id" in session:
+        user_crops = UserCrop.query.filter_by(user_id=session["user_id"]).all()
+        
     return render_template(
         "Disease_Detection/disease_detection.html",
         model_mode=model_mode,
-        model_notice=model_notice
+        model_notice=model_notice,
+        user_crops=user_crops
     )
 
 @disease_bp.route("/api/disease/predict", methods=["POST"])
@@ -92,3 +102,61 @@ def api_advisory():
         })
     except Exception as e:
         return jsonify({"error": f"Advisory evaluation failed: {str(e)}"}), 400
+
+@disease_bp.route("/api/disease/save_to_farm", methods=["POST"])
+def api_save_to_farm():
+    if "user_id" not in session:
+        return jsonify({"error": "Please log in to record diagnostic logs to your farm."}), 401
+        
+    data = request.get_json() or {}
+    user_crop_id = data.get("user_crop_id")
+    if not user_crop_id:
+        return jsonify({"error": "Please select an active farm."}), 400
+        
+    user_crop = UserCrop.query.filter_by(user_crop_id=user_crop_id, user_id=session["user_id"]).first()
+    if not user_crop:
+        return jsonify({"error": "Selected farm was not found."}), 404
+        
+    disease_label = data.get("disease_label", "Healthy Crop Leaf")
+    confidence = float(data.get("confidence", 0.0))
+    precautions = data.get("precautions", [])
+    
+    today = date.today()
+    crop_log = CropLog.query.filter_by(user_crop_id=user_crop.user_crop_id, log_date=today).first()
+    calc_week = int((today - user_crop.sowing_date).days / 7) + 1
+    if calc_week < 1:
+        calc_week = 1
+        
+    is_healthy = "healthy" in disease_label.lower()
+    status_val = "healthy" if is_healthy else "active_disease"
+    
+    if not crop_log:
+        crop_log = CropLog(
+            user_crop_id=user_crop.user_crop_id,
+            log_date=today,
+            week_number=calc_week,
+            disease_label=disease_label,
+            disease_confidence=confidence,
+            disease_precautions_json=json.dumps(precautions),
+            disease_status=status_val
+        )
+        db.session.add(crop_log)
+    else:
+        crop_log.disease_label = disease_label
+        crop_log.disease_confidence = confidence
+        crop_log.disease_precautions_json = json.dumps(precautions)
+        crop_log.disease_status = status_val
+        
+    try:
+        from community import award_points
+        award_points(session["user_id"], 10, f"Logged foliage diagnosis for {user_crop.farm_name}")
+    except Exception:
+        pass
+        
+    db.session.commit()
+    return jsonify({
+        "success": True,
+        "message": f"Successfully logged '{disease_label}' to {user_crop.farm_name}! (+10 Farm Health Points)",
+        "farm_name": user_crop.farm_name,
+        "points_awarded": 10
+    })

@@ -163,8 +163,14 @@ Smart Crop Recommendation | BioGrow
                         </div>
                     </div>
 
-                    <div class="mt-4">
-                        <button id="downloadPdfBtn" class="btn btn-outline-success border-2 fw-bold w-100 pdf-download-btn d-flex align-items-center justify-content-center gap-1">
+                    <div class="mt-4 d-flex flex-column gap-2">
+                        {% if session.get('user_id') %}
+                        <button id="addFarmFromPredBtn" class="btn btn-success fw-bold w-100 rounded-pill py-2 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                            <i class="fa fa-plus-circle"></i> Add to My Farms & Start Tracking
+                        </button>
+                        <div id="addFarmFeedback" class="small text-center fw-semibold"></div>
+                        {% endif %}
+                        <button id="downloadPdfBtn" class="btn btn-outline-success border-2 fw-bold w-100 rounded-pill py-2 pdf-download-btn d-flex align-items-center justify-content-center gap-1">
                             <span data-lucide="file-down" width="20" height="20"></span>
                             Download PDF Report
                         </button>

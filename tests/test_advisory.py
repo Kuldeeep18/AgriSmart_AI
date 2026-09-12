@@ -2,9 +2,9 @@ import unittest
 
 from fastapi.testclient import TestClient
 
-from app.main import app
-from app.schemas import SensorContext
-from app.services.advisory import irrigation_advice, sustainability_score
+from fieldguard.main import app
+from fieldguard.schemas import SensorContext
+from fieldguard.services.advisory import irrigation_advice, sustainability_score
 
 
 class AdvisoryTests(unittest.TestCase):

@@ -10,9 +10,9 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, Response
 from PIL import Image, UnidentifiedImageError
 
-from app.schemas import AdvisoryResponse, Esp32CaptureRequest, PredictionResponse, SensorContext
-from app.services.advisory import irrigation_advice, precautions_for, sustainability_score
-from app.services.image_quality import analyze_image_quality
+from fieldguard.schemas import AdvisoryResponse, Esp32CaptureRequest, PredictionResponse, SensorContext
+from fieldguard.services.advisory import irrigation_advice, precautions_for, sustainability_score
+from fieldguard.services.image_quality import analyze_image_quality
 from model.legacy_reference import convert as convert_legacy_reference
 from model.predict import ArtifactPredictor, ModelNotConfiguredError
 

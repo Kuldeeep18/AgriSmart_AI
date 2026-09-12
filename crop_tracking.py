@@ -27,7 +27,22 @@ def crop_standards(user_crop_id):
     stages = growth_config.get("stages", {})
     stage_list = list(stages.items())
     stage_list = sorted(stage_list, key=lambda x: x[1].get("days_start", 0))
-    return jsonify({"stages": stage_list, "optimal_lcc": optimal_lcc})
+    
+    latest_log = CropLog.query.filter(CropLog.user_crop_id == user_crop_id, CropLog.disease_label.isnot(None)).order_by(CropLog.log_date.desc()).first()
+    disease_info = None
+    if latest_log:
+        disease_info = {
+            "label": latest_log.disease_label,
+            "confidence": round((latest_log.disease_confidence or 0.0) * 100),
+            "status": latest_log.disease_status,
+            "date": latest_log.log_date.strftime("%b %d, %Y")
+        }
+        
+    return jsonify({
+        "stages": stage_list,
+        "optimal_lcc": optimal_lcc,
+        "latest_disease": disease_info
+    })
 
 @crop_tracking_bp.route("/log_field_data/<int:user_crop_id>", methods=["POST"])
 def log_field_data(user_crop_id):

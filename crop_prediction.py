@@ -1,8 +1,9 @@
 import json
 import os
+from datetime import date
 from flask import Blueprint, render_template, request, jsonify, make_response, session, flash, redirect, url_for
 from extensions import db
-from models import CropStandard, PredictionReport
+from models import CropStandard, PredictionReport, UserCrop
 from utils.prediction_model import get_prediction, recommend_fertilizer
 from utils.water_requirements import crop_water_requirements
 
@@ -118,3 +119,57 @@ def download_report(report_id):
     except Exception:
         # Graceful printable HTML response
         return rendered_html
+
+@crop_prediction_bp.route("/api/create_farm_from_prediction", methods=["POST"])
+def create_farm_from_prediction():
+    if "user_id" not in session:
+        return jsonify({"error": "Please log in to add this crop to your farms."}), 401
+        
+    data = request.get_json() or {}
+    crop_name = data.get("crop_name", "").strip().lower()
+    farm_name = data.get("farm_name", "").strip() or f"My {data.get('crop_name', 'Crop').capitalize()} Field"
+    area_acres = float(data.get("area_acres", 1.0))
+    
+    if not crop_name:
+        return jsonify({"error": "Crop name is required."}), 400
+        
+    standard = CropStandard.query.filter(CropStandard.crop_name.ilike(f"%{crop_name}%")).first()
+    if not standard:
+        standard = CropStandard.query.filter(CropStandard.display_name.ilike(f"%{crop_name}%")).first()
+        
+    if not standard:
+        standard = CropStandard(
+            crop_name=crop_name,
+            display_name=crop_name.capitalize(),
+            category="Cereals & Pulses",
+            growth_config={
+                "total_duration_days": [90, 120],
+                "optimal_lcc": 4,
+                "stages": {
+                    "Vegetative": {"days_start": 0, "days_end": 35},
+                    "Flowering": {"days_start": 36, "days_end": 70},
+                    "Maturity": {"days_start": 71, "days_end": 110}
+                }
+            }
+        )
+        db.session.add(standard)
+        db.session.commit()
+        
+    new_user_crop = UserCrop(
+        user_id=session["user_id"],
+        crop_standard_id=standard.crop_standard_id,
+        farm_name=farm_name,
+        sowing_date=date.today(),
+        area_acres=area_acres,
+        status="active"
+    )
+    db.session.add(new_user_crop)
+    db.session.commit()
+    
+    return jsonify({
+        "success": True,
+        "message": f"Successfully added '{standard.display_name}' ({farm_name}) to your tracked farms!",
+        "user_crop_id": new_user_crop.user_crop_id,
+        "redirect_url": url_for("crop_tracking.crop_tracking")
+    })
+

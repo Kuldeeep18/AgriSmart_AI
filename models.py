@@ -146,6 +146,10 @@ class CropLog(db.Model):
     lcc_score = db.Column(db.Integer, nullable=True)  # 1-6 Scale
     phenology_stage = db.Column(db.String(50), nullable=True) 
     stand_count = db.Column(db.Integer, nullable=True) 
+    disease_label = db.Column(db.String(100), nullable=True)
+    disease_confidence = db.Column(db.Float, nullable=True)
+    disease_precautions_json = db.Column(db.Text, nullable=True)
+    disease_status = db.Column(db.String(50), default="active")  # 'active', 'treated', 'healthy'
 
     crop = db.relationship('UserCrop', backref=db.backref('logs', cascade="all, delete-orphan"))
 
