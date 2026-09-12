@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}BioGrow - Farmer Dashboard{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_style.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<header class="hero-section text-white pt-5 mb-3">
+    <div class="container">
+        <div class="row align-items-end">
+            <input type="hidden" id="city" value="{{session.location}}">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    Welcome back, {{ session.full_name }}! 🌾
+                </h1>
+
+                <p class="lead opacity-75 mb-0">
+                    Here is your daily overview and field diagnostic tools.
+                </p>
+            </div>
+
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="card border-0 bg-white bg-opacity-10 text-white weather-card rounded-4">
+                    <div class="card-body d-flex align-items-center justify-content-between p-3">
+                        <div>
+                            {% if weather %}
+                                <h2 class="fw-bold mb-0">{{ weather.temp }}°C</h2>
+                                <p class="mb-0 small opacity-75">
+                                {{ weather.description }} | {{ user.location }}
+                                </p>
+                            {% else %}
+                                <h2 class="fw-bold mb-0">--</h2>
+                                <p class="mb-0 small opacity-75">Weather unavailable</p>
+                            {% endif %}
+                        </div>
+                        <i data-lucide="cloud-sun" width="48" height="48"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold m-0">Field Diagnostics</h4>
+        <span class="text-muted small d-flex align-items-center">
+            <i data-lucide="info" width="16" class="me-1"></i>
+            Select a test to begin
+        </span>
+    </div>
+
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card p-4 bg-green-subtle feature-card rounded-4 border-0">
+                <div class="card-body text-center">
+                    <div class="bg-success text-white rounded-3 p-3 d-inline-flex mb-4 shadow-sm">
+                        <i data-lucide="scan-line" width="32" height="32"></i>
+                    </div>
+                    <h4 class="fw-bold mb-3 text-dark">Leaf Doctor & Disease Detection</h4>
+                    <p class="text-secondary mb-4 small">
+                        Diagnose crop leaf diseases via file upload, camera, or ESP32-CAM with FieldGuard precision.
+                    </p>
+                    <a href="{{ url_for('disease_detection.disease_detection') }}"
+                        class="btn btn-light bg-white text-success fw-bold rounded-pill w-100 btn-hover-scale shadow-sm">
+                        Scan Foliage <i data-lucide="arrow-right" width="16"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-4 bg-green-subtle feature-card rounded-4 border-0">
+                <div class="card-body text-center">
+
+                    <div class="bg-success text-white rounded-3 p-3 d-inline-flex mb-4 shadow-sm">
+                        <i data-lucide="sprout" width="32" height="32"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-3 text-dark">Crop Advisory</h4>
+
+                    <p class="text-secondary mb-4 small">
+                        AI-powered recommendations based on soil parameters (N, P, K) and climate.
+                    </p>
+
+                    <a href="{{ url_for('crop_prediction.crop_prediction') }}"
+                        class="btn btn-light bg-white text-success fw-bold rounded-pill w-100 btn-hover-scale shadow-sm">
+                        Open Tool <i data-lucide="arrow-right" width="16"></i>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <div class="card p-4 bg-yellow-subtle feature-card rounded-4 border-0">
+                <div class="card-body text-center">
+
+                    <div class="bg-warning text-white rounded-3 p-3 d-inline-flex mb-4 shadow-sm">
+                        <i data-lucide="leaf" width="32" height="32"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-3">Nitrogen (LCC)</h4>
+
+                    <p class="text-secondary mb-4 small">
+                        Compare leaf color against standardized scale to determine urea application.
+                    </p>
+
+                    <a href="{{ url_for('crop_tracking.crop_tracking') }}"
+                        class="btn btn-light bg-white text-warning fw-bold rounded-pill w-100 btn-hover-scale shadow-sm">
+                        Log Score <i data-lucide="plus" width="16"></i>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <div class="card p-4 bg-blue-subtle feature-card rounded-4 border-0">
+                <div class="card-body text-center">
+
+                    <div class="bg-primary text-white rounded-3 p-3 d-inline-flex mb-4 shadow-sm">
+                        <i data-lucide="droplets" width="32" height="32"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-3">Soil Moisture</h4>
+
+                    <p class="text-secondary mb-4 small">
+                        Record "hand-feel" moisture tests to prevent water stress or root rot.
+                    </p>
+
+                    <a href="{{url_for('crop_tracking.crop_tracking')}}"
+                        class="btn btn-light bg-white text-primary fw-bold rounded-pill w-100 btn-hover-scale shadow-sm">
+                        Add Log <i data-lucide="plus" width="16"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-md-6">
+            <div class="card p-4 bg-yellow-subtle feature-card rounded-4 border-0">
+                <div class="card-body text-center">
+
+                    <div class="bg-warning text-dark rounded-3 p-3 d-inline-flex mb-4 shadow-sm">
+                        <i data-lucide="calendar-check" width="32" height="32"></i>
+                    </div>
+
+                    <h4 class="fw-bold mb-3">Today's Observation</h4>
+
+                    <p class="text-secondary mb-4 small">
+                        Log crop condition for today's field visit.
+                    </p>
+
+                    <a href="{{ url_for('crop_tracking.crop_tracking') }}"
+                        class="btn btn-light bg-white text-warning fw-bold rounded-pill w-100 btn-hover-scale shadow-sm">
+                        Add Entry <i data-lucide="plus" width="16"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Profile | BioGrow{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile_style.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+    <div class="profile-wrapper mx-auto">
+
+        <!-- Profile Header -->
+        <div class="profile-header text-white">
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="avatar">
+                    <img src="{{ url_for('static', filename='images/farmer.jpg') }}" class="w-100 h-100 rounded-circle">
+                </div>
+
+                <div>
+                    <h5 class="mb-0">{{ user.full_name }}</h5>
+                    <span class="mb-0">
+                        {{ user.role }} • {{ user.location or "India" }}
+                    </span>
+
+                    <div class="d-flex gap-2 mt-1">
+                        <span>🏅 {{ user.lifetime_points }} Lifetime Points </span>
+                        <span>🏅 {{ user.points }} Current Points </span>
+                        <span>⭐ {{ user.badge }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if next_badge_points %}
+            {% set progress_percent = (user.lifetime_points / next_badge_points * 100) | round(0) %}
+            {% else %}
+            {% set progress_percent = 100 %}
+            {% endif %}
+
+            <div class="mt-2">
+                <div class="d-flex justify-content-between small mb-1">
+                    <span>Progress to {{ next_badge }}</span>
+                    <span>{{ user.lifetime_points }} / {{ next_badge_points }}</span>
+                </div>
+
+                <div class="progress progress-sm">
+                    <div class="progress-bar bg-warning" style="width: {{ progress_percent|round(0) }}%">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Stats -->
+        <div class="row g-3 mt-1">
+            <div class="col-4">
+                <div class="stat-card">
+                    <h4>{{ question_count }}</h4>
+                    <small>Questions Asked</small>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="stat-card">
+                    <h4>{{ answers_count }}</h4>
+                    <small>Answers Given</small>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="stat-card">
+                    <h4>{{ best_answers_count }}</h4>
+                    <small>Best Answers</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements -->
+        <div class="section-card mt-3">
+            <h6 class="section-title">🏆 Achievements</h6>
+
+            <div class="achievement cream {% if answers_count < 25 %}locked{% endif %}">
+                <strong>Helper</strong>
+                <span>
+                    {% if answers_count >= 25 %}
+                    Unlocked
+                    {% else %}
+                    Locked • Need {{ 25 - answers_count }} more answers
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="achievement {% if user.lifetime_points < 300 %}locked{% endif %}">
+                <strong>Expert Farmer</strong>
+                <span>
+                    {% if user.lifetime_points >= 300 %}
+                    Unlocked
+                    {% else %}
+                    Locked • Need {{ 300 - user.lifetime_points }} points
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="achievement {% if user.lifetime_points < 300 %}locked{% endif %}">
+                <strong>Expert</strong>
+                <span>
+                    {% if user.lifetime_points >= 300 %}
+                    Unlocked
+                    {% else %}
+                    Locked • Need {{ 300 - user.lifetime_points }} points
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Rewards -->
+        <div class="section-card mt-3">
+            <h6 class="section-title">🎁 Available Rewards</h6>
+
+            <div class="reward {% if user.points < 100 %}locked{% else %}green{% endif %}">
+                <div>
+                    <strong>Priority Pin (24h)</strong>
+                    <div class="small text-muted">Pin your question</div>
+                </div>
+                <span class="badge bg-success">100 pts</span>
+            </div>
+
+            <div class="reward {% if user.points < 300 %}locked{% endif %}">
+                <div>
+                    <strong>Expert Badge</strong>
+                    <div class="small text-muted">Display expert status</div>
+                </div>
+                <span class="badge bg-warning text-dark">300 pts</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

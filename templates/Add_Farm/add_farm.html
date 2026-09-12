@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}BioGrow - Register New Farm{% endblock %}
+
+{% block css %}
+<style>
+    /* Navbar */
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-link.active{
+        background-color: #dbfce7;
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <div class="text-center mb-4">
+                <div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex p-3 mb-3">
+                    <i data-lucide="tractor" width="32" height="32"></i>
+                </div>
+                <h2 class="fw-bold text-dark">Register a New Farm</h2>
+                <p class="text-muted">Start tracking a new crop cycle to get AI-powered insights.</p>
+            </div>
+
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-body p-5">
+                    <form action="{{ url_for('crop_tracking.add_farm') }}" method="POST" id="addFarmForm">
+                        <div class="mb-4">
+                            <label for="farm_name" class="form-label fw-bold text-secondary small">FARM IDENTIFIER</label>
+                            <div class="input-group">
+                                <span class="input-group-text border-end-0"><i data-lucide="map-pin" width="18"></i></span>
+                                <input type="text" class="form-control border-start-0 py-3" id="farmName" name="farm_name" placeholder="e.g. North Field, Plot B..." required>
+                            </div>
+                            <div class="form-text text-danger" id="farmNameError"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="crop_standard_id" class="form-label fw-bold text-secondary small">CROP VARIETY</label>
+                            <select class="form-select form-select-lg py-3" id="cropVariety" name="crop_standard_id" required>
+                                <option value="" selected disabled>Select a crop...</option>
+                                
+                                {% for crop in crops %}
+                                    <option value="{{ crop.crop_standard_id }}">
+                                        {{ crop.display_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text text-danger" id="cropVarietyError"></div>
+                        </div>
+
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <label for="sowing_date" class="form-label fw-bold text-secondary small">SOWING DATE</label>
+                                <input type="date" class="form-control py-3" id="sowingDate" name="sowing_date" required>
+                                <div class="form-text text-danger" id="dateError"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="area_acres" class="form-label fw-bold text-secondary small">TOTAL AREA (ACRES)</label>
+                                <div class="input-group">
+                                    <input type="number" step="0.1" min="0.1" class="form-control bg-light py-3" id="areaAcres" name="area_acres" value="1.0" required>
+                                    <span class="input-group-text">Acres</span>
+                                </div>
+                                <div class="form-text text-danger" id="areaError"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 flex-column">
+                            <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold d-flex align-items-center justify-content-center" id="submitBtn">
+                                <i data-lucide="save" class="me-2"></i> Register Farm
+                            </button>
+                            <a href="{{ url_for('crop_tracking.crop_tracking') }}" class="btn btn-lg rounded-pill fw-bold text-muted">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/add_farm_script.js') }}"></script>
+{% endblock %}

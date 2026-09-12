@@ -1,0 +1,14 @@
+.references/
+.data_sources/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+data/
+artifacts/*
+!artifacts/public_plantvillage_baseline/
+model/weights/
+oxpusiikphgm6s6uv2xs_260910_114128.pdf
+crop_app.pkl
+*.pkl

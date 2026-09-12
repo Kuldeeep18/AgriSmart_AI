@@ -1,0 +1,159 @@
+<!-- Use base.html as parent -->
+{% extends "base.html" %}
+
+{% block title %}
+{{ topic.title }} — BioGrow Community
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_community_style.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} mt-2">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <!-- ================= QUESTION CARD ================= -->
+    <div class="card mb-4 border-0">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <h3 class="fw-bold mb-2">{{ topic.title }}</h3>
+                <a href="{{ url_for('community.farmer_community') }}" class="btn btn-outline-secondary rounded-pill">
+                    <i data-lucide="arrow-left" width="16"></i> Back to Community
+                </a>
+            </div>
+
+            <p class="text-muted mb-3">
+                Asked by <strong>{{ topic.user.full_name }}</strong>
+                • {{ topic.created_at.strftime("%d %b %Y • %I:%M %p") }}
+            </p>
+
+            <p>{{ topic.description }}</p>
+            <!-- TOPIC IMAGES -->
+            {% if topic.images %}
+            <div class="mt-3">
+                {% for image in topic.images %}
+                    <img src="{{ url_for('static', filename=image.image_path) }}"
+                        class="img-fluid rounded mb-2"
+                        style="max-width: 400px;">
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if topic.category %}
+            <span class="badge bg-light text-dark">{{ topic.category }}</span>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- ================= ANSWERS SECTION ================= -->
+    <h5 class="fw-bold mb-3">Answers</h5>
+
+    {% for answer in answers %}
+    <div
+        class="card mb-3 {% if answer.is_best_solution %}border border-success border-2{% else %} border-0 {% endif %}">
+        <div class="card-body">
+            <p class="answer-text">{{ answer.answer_text }}</p>
+            <form method="POST" action="{{ url_for('community.like_answer', answer_id=answer.answer_id) }}"
+                class="d-inline">
+                <!-- namespace creates a global variable so that it can be accessed outside the jinja loop -->
+                {% set ns = namespace(liked=false) %}
+                {% for like in answer.likes %}
+                    {% if like.user_id == session["user_id"] %}
+                        {% set ns.liked = true %}
+                    {% endif %}
+                {% endfor %}
+
+                <button type="submit"
+                    class="btn btn-sm ">
+
+                    {% if ns.liked %}
+                        <i class="fa-solid fa-thumbs-up"></i>
+                    {% else %}
+                        <i class="fa-regular fa-thumbs-up"></i>
+                    {% endif %}
+
+                    {{ answer.likes | length }}
+                </button>
+            </form>
+            <!-- COMMENTS -->
+            <div class="mt-3 ps-3 border-start">
+
+                {% for comment in answer.comments %}
+                <div class="mb-2">
+                    <small class="fw-semibold">{{ comment.user.full_name }}</small>
+                    <small class="text-muted">
+                        • {{ comment.created_at.strftime("%d %b %I:%M %p") }}
+                    </small>
+                    <div class="small">{{ comment.comment_text }}</div>
+                </div>
+                {% endfor %}
+
+                <form method="POST" action="{{ url_for('community.add_answer_comment', answer_id=answer.answer_id) }}"
+                    class="mt-2">
+                    <input type="text" name="comment_text" class="form-control form-control-sm"
+                        placeholder="Add a comment..." required>
+                </form>
+
+            </div>
+
+
+            <small class="text-muted">
+                Answered by {{ answer.user.full_name }}
+                • {{ answer.created_at.strftime("%d %b %Y • %I:%M %p") }}
+            </small>
+
+            {% if answer.is_best_solution %}
+            <span class="badge bg-success ms-2">Best Answer</span>
+            {% endif %}
+
+            <!-- MARK AS BEST BUTTON -->
+            {% if session["user_id"] == topic.user_id and not answer.is_best_solution %}
+            <div class="mt-2">
+                <a href="{{ url_for('community.mark_best_answer', answer_id=answer.answer_id) }}"
+                    class="btn btn-sm btn-outline-success">
+                    Mark as Best
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+    {% else %}
+    <p class="text-muted">No answers yet. Be the first to help!</p>
+    {% endfor %}
+
+    <!-- ================= ADD ANSWER FORM ================= -->
+    <div class="card mt-4 border-0">
+        <div class="card-body">
+            <h5 class="fw-bold mb-3">Your Answer</h5>
+
+            <form method="POST">
+                <textarea name="answer_text" class="form-control mb-3" rows="4" placeholder="Write your answer here..."
+                    required></textarea>
+
+                <button type="submit" class="btn btn-primary">
+                    Submit Answer
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(a => a.remove());
+    }, 10000);
+</script>
+
+{% endblock %}

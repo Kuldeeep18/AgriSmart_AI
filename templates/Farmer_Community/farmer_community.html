@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}
+BioGrow — Farmer Community
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/farmer_community_style.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<header class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="fw-bold mb-1">Farmer Community</h1>
+                <p class="text-muted mb-0">Ask questions • Share knowledge • Earn rewards</p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#askModal">
+                    Ask Question +
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="py-4">
+    <div class="container">
+        <div class="row g-3">
+
+            <div class="col-12">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text border-0">
+                        🔍
+                    </span>
+                    <input class="form-control border-0" id="searchInput" type="search" placeholder="Search questions">
+                </div>
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mt-2">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            <div class="col-lg-8">
+
+                {% for topic in topics %}
+                <article class="card mb-3 border-0 topic-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex gap-3">
+                                <div class="avatar avatar-green">
+                                    {{ topic.user.full_name[:2]|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-semibold">
+                                        {{ topic.user.full_name }}
+                                    </div>
+                                    <div class="text-muted mb-3">
+                                        {{ topic.created_at.strftime("%d %b %Y • %I:%M %p") }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if topic.is_pinned %}
+                            <span class="badge bg-warning text-dark">📌 Pinned</span>
+                            {% endif %}
+                            {% if session["user_id"] == topic.user_id %}
+                            <form method="POST" action="{{ url_for('community.pin_topic', topic_id=topic.topic_id) }}"
+                                class="mb-2">
+
+                                <button type="submit" class="btn btn-sm btn-outline-warning" {% if not topic.is_pinned
+                                    and current_user.points < 100 %} disabled
+                                    title="You need at least 100 points to pin this topic" {% endif %} {% if not
+                                    topic.is_pinned %}
+                                    onclick="return confirm('Pinning this topic will cost 100 points. You will have {{ current_user.points - 100 }} points left. Continue?')"
+                                    {% endif %}>
+                                    {% if topic.is_pinned %}
+                                    📌 Unpin
+                                    {% else %}
+                                    📌 Pin (100 pts)
+                                    {% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+
+
+                        <h3>
+                            <a href="{{ url_for('community.view_topic', topic_id=topic.topic_id) }}"
+                                class="fw-bold text-decoration-none">
+                                {{ topic.title }}
+                            </a>
+                        </h3>
+
+                        <p class="text-muted mb-2">
+                            {{ topic.description }}
+                        </p>
+
+                        {% if topic.category %}
+                        <div class="mb-2">
+                            <span class="badge bg-light text-dark tag">
+                                {{ topic.category }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </article>
+                {% else %}
+                <p class="text-muted">No questions yet. Be the first to ask!</p>
+                {% endfor %}
+                <p id="noResults" class="text-muted d-none">
+                    No matching questions found.
+                </p>
+
+            </div>
+
+            <aside class="col-lg-4">
+
+                <div class="card mb-3 border-0">
+                    <div class="card-body leaderboard">
+                        <h6 class="fw-bold mb-3">🏆 Top Contributors</h6>
+
+                        {% for user in top_contributors %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <strong>{{ user.full_name }}</strong><br>
+                                <small class="text-muted">{{ user.badge }}</small>
+                            </div>
+                            <span class="badge bg-success">
+                                {{ user.lifetime_points }} pts
+                            </span>
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No contributors yet</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+    </div>
+</main>
+
+<div class="modal fade" id="askModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- enctype is needed for sending both image and text data -->
+            <!-- It breaks the form into chunks (parts). One chunk for text fields, and separate, specialized chunks for
+                 binary files (images, PDFs, etc.). -->
+            <form method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ask a Question</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text" name="title" class="form-control mb-3" placeholder="Question title" required>
+
+                    <textarea name="description" class="form-control mb-3" rows="4" placeholder="Describe your problem"
+                        required></textarea>
+                    
+                    <input type="file" class="form-control mb-3" accept="image/png, image/jpeg, image/gif" name="image" multiple>
+
+                    <select name="category" class="form-select">
+                        <option value="">Select category</option>
+                        <option>Crop</option>
+                        <option>Soil</option>
+                        <option>Disease</option>
+                        <option>Market</option>
+                        <option>Weather</option>
+                        <option>Equipment</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">
+                        Post Question
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ url_for('static', filename='js/farmer_community.js') }}"></script>
+{% endblock %}
