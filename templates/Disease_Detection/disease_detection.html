@@ -177,11 +177,26 @@
                     <h5 class="fw-bold text-dark mb-3"><i class="fa fa-notes-medical text-danger me-2"></i>Diagnostic Results</h5>
                     
                     <div class="card bg-light border-0 rounded-4 p-3 mb-3" id="diseaseResultCard">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
                             <h4 class="fw-bold text-success mb-0" id="diseaseLabel">Leaf Disease</h4>
-                            <span class="badge bg-success fs-6 px-3 py-2 rounded-pill" id="diseaseConfidence">95% Confident</span>
+                            <div>
+                                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill" id="diseaseConfidence">95% Confident</span>
+                                <span class="badge bg-info text-dark fs-6 px-3 py-2 rounded-pill ms-1 d-none" id="ttaBadge"><i class="fa fa-bolt me-1"></i>TTA Multi-View</span>
+                            </div>
                         </div>
                         <p class="text-muted small mb-0" id="modelNoticeText"></p>
+                    </div>
+
+                    <!-- Explainable AI: Grad-CAM Attention Heatmap -->
+                    <div id="gradCamBox" class="card border-0 bg-dark text-white rounded-4 p-3 mb-3 d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="fw-bold mb-0 text-white"><i class="fa fa-eye text-warning me-2"></i>AI Attention Heatmap (Grad-CAM)</h6>
+                            <span class="badge bg-warning text-dark px-2 py-1 small rounded-pill fw-bold">Explainable AI</span>
+                        </div>
+                        <p class="text-white-50 small mb-2">Thermal overlay highlights the exact foliar lesions driving this neural network diagnosis.</p>
+                        <div class="text-center p-2 bg-black rounded-3">
+                            <img id="gradCamImage" class="img-fluid rounded-2 border border-secondary shadow" style="max-height: 280px;" alt="Grad-CAM Lesion Heatmap">
+                        </div>
                     </div>
 
                     <!-- Quality Warnings (if any) -->
@@ -319,7 +334,25 @@ function renderDiseaseResult(data) {
     confBadge.textContent = `${confPct}% Confidence`;
     confBadge.className = confPct > 70 ? 'badge bg-success fs-6 px-3 py-2 rounded-pill' : 'badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill';
 
+    // TTA Multi-View Badge
+    const ttaBadge = document.getElementById('ttaBadge');
+    if (data.is_tta) {
+        ttaBadge.classList.remove('d-none');
+    } else {
+        ttaBadge.classList.add('d-none');
+    }
+
     document.getElementById('modelNoticeText').textContent = data.model_notice || '';
+
+    // Grad-CAM Visual Heatmap
+    const camBox = document.getElementById('gradCamBox');
+    const camImg = document.getElementById('gradCamImage');
+    if (data.gradcam_b64) {
+        camImg.src = 'data:image/jpeg;base64,' + data.gradcam_b64;
+        camBox.classList.remove('d-none');
+    } else {
+        camBox.classList.add('d-none');
+    }
 
     // Warnings
     const warnBox = document.getElementById('qualityWarningsContainer');

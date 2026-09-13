@@ -17,15 +17,17 @@ class Prediction:
     label: str
     confidence: float
     alternatives: list[dict[str, float | str]]
+    gradcam_b64: str | None = None
+    is_tta: bool = True
 
 
 class ArtifactPredictor:
-    """Thread-safe, lazy loader for an explicitly versioned PyTorch artifact."""
+    """Thread-safe, lazy loader for an explicitly versioned PyTorch artifact with TTA and Grad-CAM."""
 
     def __init__(self, weights_path: str | Path, class_names_path: str | Path, architecture: str = "efficientnet_b0") -> None:
         self.weights_path, self.class_names_path = Path(weights_path), Path(class_names_path)
         self.architecture = architecture
-        self._model = self._classes = self._transform = None
+        self._model = self._classes = self._transform = self._tta_transforms = None
         self._lock = threading.Lock()
 
     @property
@@ -56,19 +58,54 @@ class ArtifactPredictor:
                 self._model = model
                 normalise = v2.Normalize([0.0, 0.0, 0.0], [1.0, 1.0, 1.0]) if self.architecture == "mobilenet_v2" else v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
                 self._transform = v2.Compose([v2.Resize((224, 224)), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), normalise])
+                
+                # Test-Time Augmentation (TTA) multi-view pipeline
+                self._tta_transforms = [
+                    v2.Compose([v2.Resize((224, 224)), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), normalise]),
+                    v2.Compose([v2.Resize((224, 224)), v2.RandomHorizontalFlip(p=1.0), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), normalise]),
+                    v2.Compose([v2.Resize((256, 256)), v2.CenterCrop((224, 224)), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), normalise]),
+                    v2.Compose([v2.Resize((256, 256)), v2.CenterCrop((224, 224)), v2.RandomHorizontalFlip(p=1.0), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), normalise]),
+                    v2.Compose([v2.Resize((240, 240)), v2.CenterCrop((224, 224)), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), normalise]),
+                ]
 
-    def predict_bytes(self, payload: bytes) -> Prediction:
+    def predict_bytes(self, payload: bytes, use_tta: bool = True, generate_cam: bool = True) -> Prediction:
         self._load()
         import torch
         from PIL import Image
 
         image = Image.open(io.BytesIO(payload)).convert("RGB")
-        tensor = self._transform(image).unsqueeze(0)
-        with torch.inference_mode():
-            probabilities = torch.softmax(self._model(tensor)[0], dim=0)
+
+        if use_tta and self._tta_transforms:
+            batch_tensors = [t(image) for t in self._tta_transforms]
+            batch = torch.stack(batch_tensors)
+            with torch.inference_mode():
+                probs_batch = torch.softmax(self._model(batch), dim=1)
+                probabilities = probs_batch.mean(dim=0)
+        else:
+            tensor = self._transform(image).unsqueeze(0)
+            with torch.inference_mode():
+                probabilities = torch.softmax(self._model(tensor)[0], dim=0)
+
         top = torch.topk(probabilities, k=min(3, len(self._classes)))
         alternatives = [{"label": self._classes[index], "confidence": round(float(score), 4)} for score, index in zip(top.values, top.indices)]
-        return Prediction(label=alternatives[0]["label"], confidence=alternatives[0]["confidence"], alternatives=alternatives)
+        
+        top_idx = int(top.indices[0])
+        gradcam_b64 = None
+        if generate_cam:
+            try:
+                from model.gradcam import generate_gradcam_overlay
+                base_tensor = self._transform(image).unsqueeze(0)
+                gradcam_b64 = generate_gradcam_overlay(self._model, base_tensor, image, top_idx)
+            except Exception as e:
+                print(f"[Grad-CAM Notice] Bypassed heatmap: {e}")
+
+        return Prediction(
+            label=alternatives[0]["label"],
+            confidence=alternatives[0]["confidence"],
+            alternatives=alternatives,
+            gradcam_b64=gradcam_b64,
+            is_tta=use_tta
+        )
 
 
 _default_predictor = ArtifactPredictor("artifacts/current/best_model.pt", "artifacts/current/class_names.json")

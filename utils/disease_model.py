@@ -49,12 +49,16 @@ def predict_leaf_disease(image_bytes: bytes) -> dict:
 
     predictor, model_mode, model_notice = get_active_predictor()
     
+    gradcam_b64 = None
+    is_tta = False
     if predictor and predictor.is_configured:
         try:
             res: Prediction = predictor.predict_bytes(image_bytes)
             label = res.label
             confidence = res.confidence
             alternatives = res.alternatives
+            gradcam_b64 = getattr(res, "gradcam_b64", None)
+            is_tta = getattr(res, "is_tta", False)
         except Exception as e:
             label = "Healthy Crop Leaf"
             confidence = 0.88
@@ -84,7 +88,9 @@ def predict_leaf_disease(image_bytes: bytes) -> dict:
                 "Ensure the crop leaf occupies at least 50% of the image frame."
             ],
             "quality_warnings": warnings,
-            "alternatives": []
+            "alternatives": [],
+            "gradcam_b64": None,
+            "is_tta": False
         }
 
     return {
@@ -94,5 +100,7 @@ def predict_leaf_disease(image_bytes: bytes) -> dict:
         "model_notice": model_notice,
         "precautions": precautions_for(label),
         "quality_warnings": warnings,
-        "alternatives": alternatives
+        "alternatives": alternatives,
+        "gradcam_b64": gradcam_b64,
+        "is_tta": is_tta
     }

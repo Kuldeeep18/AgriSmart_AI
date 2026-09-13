@@ -74,7 +74,9 @@ def run_comprehensive_test():
             label = resp_data.get("label", "")
             confidence = resp_data.get("confidence", 0.0)
             precautions = resp_data.get("precautions", [])
-            print(f"  [PASS] [{filename}] -> {label} (Conf: {confidence*100:.1f}%)")
+            has_cam = resp_data.get("gradcam_b64") is not None
+            is_tta = resp_data.get("is_tta", False)
+            print(f"  [PASS] [{filename}] -> {label} (Conf: {confidence*100:.1f}%) | TTA: {is_tta} | Grad-CAM: {has_cam}")
             if precautions:
                 print(f"         Treatment: {precautions[0][:60]}...")
             passed += 1
