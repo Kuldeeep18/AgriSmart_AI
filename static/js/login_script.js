@@ -9,25 +9,25 @@ const formLogin = document.getElementById("form-login");
 const formRegister = document.getElementById("form-register");
 
 tabRegister.addEventListener("click", () => {
-    tabRegister.classList.add("active-tab");
-    tabRegister.classList.remove("text-secondary");
-    tabLogin.classList.remove("active-tab");
-    tabLogin.classList.add("text-secondary");
+    tabRegister.classList.add("bg-white", "shadow-sm", "text-gray-900");
+    tabRegister.classList.remove("text-gray-500");
+    tabLogin.classList.remove("bg-white", "shadow-sm", "text-gray-900");
+    tabLogin.classList.add("text-gray-500");
 
-    formLogin.classList.add("d-none");
-    formRegister.classList.remove("d-none");
+    formLogin.classList.add("hidden");
+    formRegister.classList.remove("hidden");
 
     lucide.createIcons();
 });
 
 tabLogin.addEventListener("click", () => {
-    tabLogin.classList.add("active-tab");
-    tabLogin.classList.remove("text-secondary");
-    tabRegister.classList.remove("active-tab");
-    tabRegister.classList.add("text-secondary");
+    tabLogin.classList.add("bg-white", "shadow-sm", "text-gray-900");
+    tabLogin.classList.remove("text-gray-500");
+    tabRegister.classList.remove("bg-white", "shadow-sm", "text-gray-900");
+    tabRegister.classList.add("text-gray-500");
 
-    formRegister.classList.add("d-none");
-    formLogin.classList.remove("d-none");
+    formRegister.classList.add("hidden");
+    formLogin.classList.remove("hidden");
 
     lucide.createIcons();
 });
@@ -71,92 +71,79 @@ toggleConfirmPasswordBtn.addEventListener("click", () => { togglePassword(regCon
 function togglePassword(passwordField, buttonElement) {
     const isPassword = passwordField.type === "password";
     passwordField.type = (isPassword) ? "text" : "password";
-    
-    buttonElement.innerHTML = (isPassword) ? `<i data-lucide="eye-off" width="18"></i>` : `<i data-lucide="eye" width="18"></i>`;
+
+    buttonElement.innerHTML = (isPassword) ? `<i data-lucide="eye-off" class="w-5 h-5"></i>` : `<i data-lucide="eye" class="w-5 h-5"></i>`;
     lucide.createIcons();
 }
 
 function validateFullname() {
     if (regFullname.value === "") {
-        errFullname.classList.add("d-none");
+        errFullname.classList.add("hidden");
         return false;
     }
 
     if (regFullname.value.trim().length < 3) {
-        errFullname.classList.remove("d-none");
+        errFullname.classList.remove("hidden");
         return false;
     }
-    errFullname.classList.add("d-none");
+    errFullname.classList.add("hidden");
     return true;
 }
 
-// ^ and $ are anchors ensuring the entire string matches the pattern from start to finish.
-// [a-zA-Z0-9._%+-]+ matches one or more valid username characters (letters, numbers, and common symbols).
-// @ matches the literal "@" separator.
-// [a-zA-Z0-9.-]+ matches the domain name (e.g., "gmail" or "outlook"), allowing letters, numbers, dots, and hyphens.
-// \. matches the literal dot before the Top-Level Domain (TLD).
-// [a-zA-Z]{2,} ensures the TLD (e.g., "com", "edu") contains only letters and is at least 2 characters long.
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 function validateEmail() {
     const email = regEmail.value.trim();
-    
-    // Everytime a field changes all fields are validated so to prevent all fields from becoming red, error is only displayed if the field
-    // isn't empty
-    if (email==="") {
-        errPassword.classList.add("d-none");
+
+    if (email === "") {
+        errPassword.classList.add("hidden");
         return false;
     }
 
     if (!emailRegex.test(email)) {
-        errEmail.classList.remove("d-none");
+        errEmail.classList.remove("hidden");
         return false;
     }
 
-    errEmail.classList.add("d-none");
+    errEmail.classList.add("hidden");
     return true;
 }
 
-// ^ and $ are anchors ensuring the pattern matches the string from start to finish.
-// (?=.*[A-Za-z]) is a positive lookahead assertion: it scans for at least one letter without moving the match cursor.
-// (?=.*\d) is a second lookahead assertion: it ensures at least one digit is present before proceeding.
-// [A-Za-z\d@$!%*?&.] defines the allowed character set (alphanumeric + specific symbols).
-// {6,} enforces a minimum length of 6 characters for the entire string.
 const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&.]{6,}$/;
 function validatePassword() {
     const pwd = regPassword.value;
 
-    if (pwd==="") {
-        errPassword.classList.add("d-none");
+    if (pwd === "") {
+        errPassword.classList.add("hidden");
         return false;
     }
 
     if (!passwordRegex.test(pwd)) {
-        errPassword.classList.remove("d-none");
+        errPassword.classList.remove("hidden");
         return false;
     }
 
-    errPassword.classList.add("d-none");
+    errPassword.classList.add("hidden");
     return true;
 }
 
 function validateConfirmPassword() {
     if (regConfirm.value === "") {
-        errConfirm.classList.add("d-none");
+        errConfirm.classList.add("hidden");
         return false;
     }
 
     if (regConfirm.value !== regPassword.value) {
-        errConfirm.classList.remove("d-none");
+        errConfirm.classList.remove("hidden");
         return false;
     }
 
-    errConfirm.classList.add("d-none");
+    errConfirm.classList.add("hidden");
     return true;
 }
 
 function validateLocation() {
     if (regLocation.value === "") {
-        errLocation.classList.add("d-none");
+        errLocation.classList.add("hidden");
         return false;
     }
 
@@ -164,18 +151,18 @@ function validateLocation() {
     const parts = regLocation.value.split(",").map(part => part.trim());
 
     // Ensure exactly 2 parts AND both parts have text => District, State
-    if (parts.length!=2 || parts[0]==="" || parts[1]==="") {
-        errLocation.classList.remove("d-none");
+    if (parts.length != 2 || parts[0] === "" || parts[1] === "") {
+        errLocation.classList.remove("hidden");
         return false;
     }
 
-    errLocation.classList.add("d-none");
+    errLocation.classList.add("hidden");
     return true;
 }
 
 function validateDOB() {
     if (!regDob.value) {
-        errDob.classList.add("d-none");
+        errDob.classList.add("hidden");
         return false;
     }
 
@@ -183,7 +170,7 @@ function validateDOB() {
     const today = new Date();
 
     if (dob > today) {
-        errDob.classList.remove("d-none");
+        errDob.classList.remove("hidden");
         errDob.innerText = "Date of birth cannot be in future";
         return false;
     }
@@ -196,12 +183,12 @@ function validateDOB() {
     }
 
     if (age < 13) {
-        errDob.classList.remove("d-none");
+        errDob.classList.remove("hidden");
         errDob.innerText = "You must be at least 13 years old";
         return false;
     }
 
-    errDob.classList.add("d-none");
+    errDob.classList.add("hidden");
     return true;
 }
 
@@ -209,21 +196,18 @@ function validateMobile() {
     const mobile = regMobile.value.trim();
 
     if (mobile === "") {
-        errMobile.classList.add("d-none");
+        errMobile.classList.add("hidden");
         return false;
     }
 
-    // ^[6-9] ensures the 10-digit mobile number starts with a valid Indian prefix (6, 7, 8, or 9).
-    // \d{9}$ ensures exactly 9 more digits follow, totaling 10 digits without extra trailing characters.
     if (!/^[6-9]\d{9}$/.test(mobile)) {
-        errMobile.classList.remove("d-none");
+        errMobile.classList.remove("hidden");
         return false;
     }
 
-    errMobile.classList.add("d-none");
+    errMobile.classList.add("hidden");
     return true;
 }
-
 
 function checkRegisterForm() {
     if (
@@ -240,7 +224,3 @@ function checkRegisterForm() {
         registerBtn.disabled = true;
     }
 }
-
-setTimeout(() => {
-   document.querySelectorAll('.alert').forEach(a => a.remove());
-}, 3000);   

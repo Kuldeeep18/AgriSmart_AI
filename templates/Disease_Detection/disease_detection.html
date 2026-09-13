@@ -4,854 +4,944 @@
 
 {% block css %}
 <style>
-    body {
-        background-color: #f2fbf5;
-    }
-    .scanner-card {
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        transition: all 0.2s ease;
-    }
-    .scanner-card:hover {
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    }
-    .badge-soft-success {
-        background-color: #d1fae5;
-        color: #065f46;
-    }
-    .badge-soft-warning {
-        background-color: #fef3c7;
-        color: #92400e;
-    }
     .drop-zone {
-        border: 2px dashed #cbd5e1;
-        border-radius: 12px;
-        padding: 30px;
-        text-align: center;
-        background-color: #f8fafc;
-        cursor: pointer;
         transition: all 0.2s ease-in-out;
     }
-    .drop-zone:hover {
-        border-color: #10b981;
-        background-color: #f0fdf4;
-    }
+
     .drop-zone.drag-over {
-        border-color: #198754 !important;
-        background-color: #d1fae5 !important;
+        border-color: #10b981 !important;
+        /* emerald-500 */
+        background-color: #ecfdf5 !important;
+        /* emerald-50 */
         transform: scale(1.02);
-        box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.18);
-    }
-    .preview-img {
-        max-height: 260px;
-        object-fit: cover;
-        border-radius: 12px;
-    }
-    .action-btn-pill {
-        border-radius: 50rem;
-        padding: 0.6rem 1.4rem;
-        font-weight: 600;
-    }
-    .nav-pills .nav-link.active {
-        background-color: #198754 !important;
-        color: #ffffff !important;
-    }
-    .nav-pills .nav-link {
-        color: #495057;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="max-w-7xl mx-auto px-4 py-8">
+
     <!-- Header Banner -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div
+        class="flex flex-col md:flex-row md:items-center justify-between mb-8 pb-4 border-b border-gray-100 gap-4 mt-8">
         <div>
-            <h2 class="fw-bold text-success mb-1">🌿 Leaf Doctor & Precision Advisory</h2>
-            <p class="text-muted mb-0">Instant AI disease diagnosis from foliage scans + transparent smart irrigation rules.</p>
+            <h2 class="font-display text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                <i data-lucide="scan-line" class="text-emerald-600"></i> Leaf Doctor & Advisory
+            </h2>
+            <p class="text-gray-500 text-sm font-medium">Instant AI disease diagnosis from foliage scans + transparent
+                smart irrigation rules.</p>
         </div>
-        <div class="mt-2 mt-md-0">
-            <span class="badge badge-soft-success px-3 py-2 rounded-pill fs-6">
-                <i class="fa fa-shield-alt me-1"></i> FieldGuard Core Active
+        <div>
+            <span
+                class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-full border border-emerald-100">
+                <i data-lucide="shield-check" class="w-4 h-4"></i> FieldGuard Core Active
             </span>
         </div>
     </div>
 
     <!-- Status Alert if applicable -->
     {% if model_notice %}
-    <div class="alert alert-light border shadow-sm rounded-4 d-flex align-items-center mb-4" role="alert">
-        <i class="fa fa-info-circle text-success fs-4 me-3"></i>
-        <div>
-            <small class="fw-semibold text-dark">{{ model_notice }}</small>
-        </div>
+    <div class="block w-full bg-white border border-gray-100 shadow-sm rounded-2xl p-4 mb-6 flex items-start gap-4">
+        <i data-lucide="info" class="w-6 h-6 text-emerald-500 flex-shrink-0 mt-0.5"></i>
+        <div class="text-sm font-semibold text-gray-700 leading-relaxed">{{ model_notice }}</div>
     </div>
     {% endif %}
 
-    <div class="row g-4">
+    <div class="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] xl:grid-cols-[1.4fr_1fr] gap-8">
+
         <!-- LEFT COLUMN: SCAN & DIAGNOSE -->
-        <div class="col-lg-7">
-            <div class="card scanner-card shadow-sm h-100 p-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h4 class="fw-bold mb-0 text-dark"><i class="fa fa-camera text-success me-2"></i>Leaf Disease Scanner</h4>
-                    
-                    <!-- Scan Mode Tabs -->
-                    <ul class="nav nav-pills nav-fill bg-light p-1 rounded-pill" id="scanTabs" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link active rounded-pill py-1 px-3 small" id="tab-upload" data-bs-toggle="pill" data-bs-target="#panel-upload" type="button">Upload</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-pill py-1 px-3 small" id="tab-camera" data-bs-toggle="pill" data-bs-target="#panel-camera" type="button">Camera</button>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link rounded-pill py-1 px-3 small" id="tab-esp32" data-bs-toggle="pill" data-bs-target="#panel-esp32" type="button">ESP32-CAM</button>
-                        </li>
-                    </ul>
-                </div>
+        <div
+            class="bg-white rounded-[2rem] p-6 lg:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col relative h-full">
 
-                {% if session.get('user_id') and user_crops %}
-                <div class="mb-3 p-3 bg-light rounded-4 border">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <label class="form-label small fw-bold text-dark mb-0">
-                            <i class="fa fa-map-marker-alt text-success me-1"></i> Active Farm for this Scan:
-                        </label>
-                        <span class="badge bg-success-subtle text-success small px-2 py-1 rounded-pill">Connected</span>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 relative z-10">
+                <h4 class="font-bold text-xl text-gray-900 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                        <i data-lucide="camera" class="w-4 h-4"></i>
                     </div>
-                    <select id="userFarmSelect" class="form-select form-select-sm mt-2 rounded-3">
-                        <option value="">-- General Foliage Scan (Not linked to a specific farm) --</option>
-                        {% for farm in user_crops %}
-                        <option value="{{ farm.user_crop_id }}" data-crop="{{ farm.standard.display_name if farm.standard else 'Crop' }}">
-                            🚜 {{ farm.farm_name }} ({{ farm.standard.display_name if farm.standard else 'Crop' }})
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% endif %}
+                    Leaf Scanner
+                </h4>
 
-                <!-- Differential Crop Focus Pills -->
-                <div class="mb-3 p-3 bg-light rounded-4 border">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label small fw-bold text-dark mb-0">
-                            <i class="fa fa-filter text-success me-1"></i> Target Crop Focus:
-                        </label>
-                        <span id="activeCropBadge" class="badge bg-success-subtle text-success small px-2 py-1 rounded-pill">
-                            <i class="fa fa-globe me-1"></i>Auto-Detect Active
-                        </span>
-                    </div>
-                    <div class="d-flex flex-wrap gap-1" id="cropPillsContainer">
-                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 crop-pill active" data-crop="all">🌐 Auto-Detect</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="apple">🍎 Apple</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="tomato">🍅 Tomato</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="potato">🥔 Potato</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="corn">🌽 Corn</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="grape">🍇 Grape</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="pepper">🌶️ Pepper</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="citrus">🍊 Citrus</button>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                        <small class="text-muted" id="cropFocusHelpText">Differential diagnosis spans 14 crops. Select a crop to condition diagnosis on that species.</small>
-                        <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small d-none" id="btnResetCropPills" onclick="setCropFilter('all')">
-                            <i class="fa fa-times-circle me-1"></i>Reset
-                        </button>
-                    </div>
-                </div>
-
-                <div class="tab-content pt-2" id="scanTabContent">
-                    <!-- 1. FILE UPLOAD -->
-                    <div class="tab-pane fade show active" id="panel-upload" role="tabpanel">
-                        <form id="uploadForm">
-                            <div class="drop-zone" id="dropZone">
-                                <i class="fa fa-cloud-upload-alt text-success display-5 mb-2"></i>
-                                <h6 class="fw-bold mb-1">Click or drag & drop leaf image</h6>
-                                <p class="text-muted small mb-0">PNG, JPG, JPEG up to 8MB</p>
-                                <input type="file" id="leafImageInput" accept="image/*" class="d-none">
-                            </div>
-                            <div id="uploadPreviewBox" class="text-center mt-3 d-none">
-                                <img id="uploadPreview" class="preview-img border shadow-sm mb-3">
-                            </div>
-                            <div class="mt-3 text-end">
-                                <button type="submit" class="btn btn-success action-btn-pill px-4 shadow-sm" id="btnAnalyzeUpload">
-                                    <i class="fa fa-microscope me-1"></i> Analyze Foliage
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- 2. LIVE CAMERA -->
-                    <div class="tab-pane fade" id="panel-camera" role="tabpanel">
-                        <div class="text-center bg-dark rounded-4 p-2 mb-3 position-relative" style="min-height: 240px;">
-                            <video id="webcamVideo" autoplay playsinline class="w-100 rounded-3 d-none" style="max-height: 280px;"></video>
-                            <canvas id="photoCanvas" class="w-100 rounded-3 d-none" style="max-height: 280px;"></canvas>
-                            <div id="cameraPlaceholder" class="py-5 text-white-50">
-                                <i class="fa fa-video display-4 mb-2"></i>
-                                <p class="mb-0">Click "Start Camera" to access web/mobile camera</p>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-center gap-2">
-                            <button type="button" class="btn btn-outline-success action-btn-pill" id="btnStartCamera">
-                                <i class="fa fa-play me-1"></i> Start Camera
-                            </button>
-                            <button type="button" class="btn btn-success action-btn-pill d-none" id="btnCaptureAnalyze">
-                                <i class="fa fa-camera-retro me-1"></i> Capture & Diagnose
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary action-btn-pill d-none" id="btnStopCamera">
-                                <i class="fa fa-stop me-1"></i> Stop
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- 3. ESP32-CAM -->
-                    <div class="tab-pane fade" id="panel-esp32" role="tabpanel">
-                        <form id="esp32Form" class="p-3 bg-light rounded-4">
-                            <label class="form-label fw-bold text-dark"><i class="fa fa-network-wired text-success me-1"></i> ESP32-CAM Local IP</label>
-                            <div class="input-group mb-2">
-                                <span class="input-group-text bg-white">http://</span>
-                                <input type="text" class="form-control" name="host" id="esp32Host" placeholder="192.168.1.50" required>
-                                <span class="input-group-text bg-white">/capture</span>
-                            </div>
-                            <small class="text-muted d-block mb-3">Ensure your ESP32-CAM module is on your local Wi-Fi and serves JPEG frame on <code>/capture</code>.</small>
-                            <button type="submit" class="btn btn-success action-btn-pill w-100" id="btnEsp32Capture">
-                                <i class="fa fa-satellite-dish me-1"></i> Capture & Diagnose from Device
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- DIAGNOSIS RESULTS BOX -->
-                <div id="diagnosisContainer" class="mt-4 pt-3 border-top d-none">
-                    <h5 class="fw-bold text-dark mb-3"><i class="fa fa-notes-medical text-danger me-2"></i>Diagnostic Results</h5>
-
-                    <!-- Smart Cross-Crop Disambiguation Recommendation Banner -->
-                    <div id="cropDisambiguationBanner" class="card border-0 bg-primary-subtle rounded-4 p-3 mb-3 d-none">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="d-flex align-items-start">
-                                <i class="fa fa-lightbulb text-primary fs-4 me-3 mt-1"></i>
-                                <div>
-                                    <h6 class="fw-bold text-dark mb-1"><i class="fa fa-microchip text-primary me-1"></i>Cross-Crop Visual Similarity Detected</h6>
-                                    <p class="small text-muted mb-0" id="disambiguationText"></p>
-                                </div>
-                            </div>
-                            <div id="disambiguationActionBox"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="card bg-light border-0 rounded-4 p-3 mb-3" id="diseaseResultCard">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-                            <h4 class="fw-bold text-success mb-0" id="diseaseLabel">Leaf Disease</h4>
-                            <div class="d-flex align-items-center flex-wrap gap-1">
-                                <span class="badge bg-success fs-6 px-3 py-2 rounded-pill" id="diseaseConfidence">95% Confident</span>
-                                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill d-none" id="cropConditionedBadge"><i class="fa fa-tag me-1"></i><span id="cropConditionedText">Conditioned: Apple</span></span>
-                                <span class="badge bg-info text-dark fs-6 px-3 py-2 rounded-pill ms-1 d-none" id="ttaBadge"><i class="fa fa-bolt me-1"></i>TTA Multi-View</span>
-                            </div>
-                        </div>
-                        <p class="text-muted small mb-0" id="modelNoticeText"></p>
-                    </div>
-
-                    <!-- Explainable AI: Grad-CAM Attention Heatmap -->
-                    <div id="gradCamBox" class="card border-0 bg-dark text-white rounded-4 p-3 mb-3 d-none">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="fw-bold mb-0 text-white"><i class="fa fa-eye text-warning me-2"></i>AI Attention Heatmap (Grad-CAM)</h6>
-                            <span class="badge bg-warning text-dark px-2 py-1 small rounded-pill fw-bold">Explainable AI</span>
-                        </div>
-                        <p class="text-white-50 small mb-2">Thermal overlay highlights the exact foliar lesions driving this neural network diagnosis.</p>
-                        <div class="text-center p-2 bg-black rounded-3">
-                            <img id="gradCamImage" class="img-fluid rounded-2 border border-secondary shadow" style="max-height: 280px;" alt="Grad-CAM Lesion Heatmap">
-                        </div>
-                    </div>
-
-                    <!-- Quality Warnings (if any) -->
-                    <div id="qualityWarningsContainer" class="mb-3 d-none">
-                        <div class="alert alert-warning rounded-4 mb-0" id="qualityWarningsList"></div>
-                    </div>
-
-                    <!-- Precautions -->
-                    <div class="mb-3" id="precautionsBox">
-                        <h6 class="fw-bold text-dark mb-2"><i class="fa fa-clipboard-check text-success me-1"></i>Recommended Precautions & Treatments:</h6>
-                        <ul class="list-group list-group-flush rounded-3" id="precautionsList"></ul>
-                    </div>
-
-                    <!-- Alternatives -->
-                    <div id="alternativesBox" class="d-none">
-                        <h6 class="fw-bold text-muted small text-uppercase mb-2">Top Differential Diagnoses:</h6>
-                        <div id="alternativesList" class="d-flex flex-wrap gap-2"></div>
-                    </div>
-
-                    <!-- Save to Farm Section (if logged in) -->
-                    {% if session.get('user_id') and user_crops %}
-                    <div id="saveToFarmSection" class="mt-3 pt-3 border-top">
-                        <button type="button" class="btn btn-success action-btn-pill w-100 shadow-sm" id="btnSaveToFarm">
-                            <i class="fa fa-file-medical me-1"></i> Log Diagnosis to Selected Farm (+10 Pts)
-                        </button>
-                        <div id="saveToFarmFeedback" class="mt-2 text-center small fw-semibold"></div>
-                    </div>
-                    {% endif %}
+                <!-- Scan Mode Tabs -->
+                <div class="flex bg-gray-50 p-1.5 rounded-full border border-gray-200" id="scanTabs">
+                    <button
+                        class="scan-tab-btn active text-sm font-semibold px-4 py-1.5 rounded-full transition-all bg-white text-gray-900 shadow-sm border border-gray-200"
+                        data-target="#panel-upload">Upload</button>
+                    <button
+                        class="scan-tab-btn text-sm font-semibold px-4 py-1.5 rounded-full transition-all text-gray-500 hover:text-gray-900"
+                        data-target="#panel-camera">Camera</button>
+                    <button
+                        class="scan-tab-btn text-sm font-semibold px-4 py-1.5 rounded-full transition-all text-gray-500 hover:text-gray-900"
+                        data-target="#panel-esp32">ESP32</button>
                 </div>
             </div>
+
+            {% if session.get('user_id') and user_crops %}
+            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-5 relative z-10">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-500"></i> Active Farm Focus
+                    </label>
+                    <span
+                        class="text-[10px] font-bold px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full">Connected</span>
+                </div>
+                <select id="userFarmSelect"
+                    class="w-full bg-white border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 block p-3 outline-none cursor-pointer">
+                    <option value="">-- General Scan (No farm linked) --</option>
+                    {% for farm in user_crops %}
+                    <option value="{{ farm.user_crop_id }}"
+                        data-crop="{{ farm.standard.display_name if farm.standard else 'Crop' }}">
+                        🚜 {{ farm.farm_name }} ({{ farm.standard.display_name if farm.standard else 'Crop' }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <!-- Differential Crop Focus Pills -->
+            <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-8 relative z-10">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
+                        <i data-lucide="filter" class="w-3.5 h-3.5 text-emerald-500"></i> Target Crop
+                    </label>
+                    <span id="activeCropBadge"
+                        class="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full flex items-center gap-1">
+                        <i data-lucide="globe" class="w-3 h-3"></i> Auto-Detect Active
+                    </span>
+                </div>
+                <div class="flex flex-wrap gap-2" id="cropPillsContainer">
+                    <button type="button"
+                        class="crop-pill active px-4 py-1.5 text-xs font-bold rounded-full transition-colors border bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                        data-crop="all">🌐 Auto-Detect</button>
+                    <button type="button"
+                        class="crop-pill bg-white text-gray-600 border-gray-200 hover:bg-gray-100 px-4 py-1.5 text-xs font-bold rounded-full transition-colors border"
+                        data-crop="apple">🍎 Apple</button>
+                    <button type="button"
+                        class="crop-pill bg-white text-gray-600 border-gray-200 hover:bg-gray-100 px-4 py-1.5 text-xs font-bold rounded-full transition-colors border"
+                        data-crop="tomato">🍅 Tomato</button>
+                    <button type="button"
+                        class="crop-pill bg-white text-gray-600 border-gray-200 hover:bg-gray-100 px-4 py-1.5 text-xs font-bold rounded-full transition-colors border"
+                        data-crop="potato">🥔 Potato</button>
+                    <button type="button"
+                        class="crop-pill bg-white text-gray-600 border-gray-200 hover:bg-gray-100 px-4 py-1.5 text-xs font-bold rounded-full transition-colors border"
+                        data-crop="corn">🌽 Corn</button>
+                    <button type="button"
+                        class="crop-pill bg-white text-gray-600 border-gray-200 hover:bg-gray-100 px-4 py-1.5 text-xs font-bold rounded-full transition-colors border"
+                        data-crop="grape">🍇 Grape</button>
+                </div>
+                <div class="flex justify-between items-center mt-3">
+                    <p id="cropFocusHelpText" class="text-xs text-gray-500 font-medium">Select a crop to hone the neural
+                        network.</p>
+                    <button type="button"
+                        class="hidden text-xs text-gray-500 hover:text-gray-800 font-bold flex items-center gap-1"
+                        id="btnResetCropPills" onclick="setCropFilter('all')">
+                        <i data-lucide="x-circle" class="w-3 h-3"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Contents -->
+            <div id="scanTabContent" class="relative z-10 flex-grow flex flex-col">
+
+                <!-- 1. FILE UPLOAD -->
+                <div id="panel-upload" class="scan-panel block h-full flex flex-col justify-between">
+                    <form id="uploadForm" class="flex flex-col h-full gap-4">
+                        <div class="drop-zone border-2 border-dashed border-gray-300 rounded-3xl p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer text-center flex-grow"
+                            id="dropZone">
+                            <i data-lucide="upload-cloud" class="w-12 h-12 text-emerald-500 mb-3"></i>
+                            <h6 class="font-bold text-gray-900 mb-1">Click or drag & drop leaf image</h6>
+                            <p class="text-xs text-gray-500">PNG, JPG, JPEG up to 8MB</p>
+                            <input type="file" id="leafImageInput" accept="image/*" class="hidden">
+                        </div>
+                        <div id="uploadPreviewBox" class="hidden flex justify-center py-2">
+                            <img id="uploadPreview"
+                                class="max-h-[220px] rounded-2xl shadow-md border border-gray-200 object-cover">
+                        </div>
+                        <button type="submit"
+                            class="w-full mt-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-4 rounded-xl shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                            id="btnAnalyzeUpload">
+                            <i data-lucide="microscope" class="w-4 h-4"></i> Analyze Foliage
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. LIVE CAMERA -->
+                <div id="panel-camera" class="scan-panel hidden flex flex-col justify-between h-full">
+                    <div
+                        class="bg-gray-900 rounded-3xl mb-4 relative overflow-hidden flex items-center justify-center min-h-[280px] shadow-inner">
+                        <video id="webcamVideo" autoplay playsinline
+                            class="hidden w-full h-full object-cover max-h-[300px]"></video>
+                        <canvas id="photoCanvas" class="hidden w-full h-full object-cover max-h-[300px]"></canvas>
+
+                        <div id="cameraPlaceholder"
+                            class="flex flex-col items-center justify-center text-gray-500 h-full p-8 text-center">
+                            <i data-lucide="video" class="w-12 h-12 mb-3 opacity-50"></i>
+                            <p class="text-sm font-medium">Click "Start Camera" to access web/mobile camera</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center gap-3 mt-auto">
+                        <button type="button"
+                            class="flex-1 bg-white border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-sm py-3.5 rounded-xl transition-colors flex justify-center items-center gap-2"
+                            id="btnStartCamera">
+                            <i data-lucide="play" class="w-4 h-4"></i> Start Camera
+                        </button>
+                        <button type="button"
+                            class="hidden flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3.5 rounded-xl transition-colors flex justify-center items-center gap-2 shadow-md"
+                            id="btnCaptureAnalyze">
+                            <i data-lucide="camera" class="w-4 h-4"></i> Capture & Diagnose
+                        </button>
+                        <button type="button"
+                            class="hidden bg-red-100 hover:bg-red-200 text-red-700 text-sm font-bold py-3.5 px-6 rounded-xl transition-colors flex justify-center items-center"
+                            id="btnStopCamera">
+                            Stop
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. ESP32-CAM -->
+                <div id="panel-esp32" class="scan-panel hidden h-full flex flex-col justify-between">
+                    <form id="esp32Form" class="bg-gray-50 border border-gray-100 rounded-3xl p-6 h-full flex flex-col">
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                <i data-lucide="network" class="w-4 h-4 text-emerald-600"></i> ESP32-CAM Local IP
+                            </label>
+                            <div
+                                class="flex items-center overflow-hidden rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">
+                                <span
+                                    class="bg-gray-50 px-4 py-3.5 text-gray-500 text-sm font-semibold border-r border-gray-200">http://</span>
+                                <input type="text"
+                                    class="w-full outline-none px-4 py-3 text-sm font-semibold text-gray-900 placeholder-gray-400"
+                                    name="host" id="esp32Host" placeholder="192.168.1.50" required>
+                                <span
+                                    class="bg-gray-50 px-4 py-3.5 text-gray-500 text-sm font-semibold border-l border-gray-200">/capture</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-6">Ensure your ESP32-CAM module is on your local Wi-Fi and
+                            serves JPEG frame on <code>/capture</code>.</p>
+                        <button type="submit"
+                            class="w-full mt-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-4 rounded-xl shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                            id="btnEsp32Capture">
+                            <i data-lucide="satellite-dish" class="w-4 h-4"></i> Capture via Device
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- DIAGNOSIS RESULTS BOX -->
+            <div id="diagnosisContainer"
+                class="hidden mt-8 pt-8 border-t border-gray-100 relative z-10 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                <h5 class="font-bold text-xl text-gray-900 mb-4 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <i data-lucide="stethoscope" class="w-4 h-4"></i>
+                    </div>
+                    Diagnostic Results
+                </h5>
+
+                <!-- Smart Cross-Crop Disambiguation Recommendation Banner -->
+                <div id="cropDisambiguationBanner"
+                    class="hidden bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-4">
+                    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div class="flex gap-3">
+                            <i data-lucide="lightbulb" class="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5"></i>
+                            <div>
+                                <h6 class="font-bold text-sm text-gray-900 mb-1">Cross-Crop Similarity Detected</h6>
+                                <p class="text-xs text-gray-600" id="disambiguationText"></p>
+                            </div>
+                        </div>
+                        <div id="disambiguationActionBox" class="flex-shrink-0"></div>
+                    </div>
+                </div>
+
+                <!-- Main Disease Result Card -->
+                <div id="diseaseResultCard" class="bg-gray-50 border border-gray-200 rounded-2xl p-5 mb-4 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-2">
+                        <h4 class="font-display font-black text-2xl text-emerald-700 m-0" id="diseaseLabel">Leaf Disease
+                        </h4>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-full shadow-sm"
+                                id="diseaseConfidence">95%</span>
+                            <span
+                                class="hidden px-2.5 py-1 text-xs font-bold bg-indigo-100 text-indigo-700 rounded-full flex items-center gap-1"
+                                id="cropConditionedBadge"><i data-lucide="tag" class="w-3 h-3"></i> <span
+                                    id="cropConditionedText"></span></span>
+                            <span
+                                class="hidden px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-800 rounded-full flex items-center gap-1"
+                                id="ttaBadge"><i data-lucide="zap" class="w-3 h-3"></i> TTA</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 font-medium m-0" id="modelNoticeText"></p>
+                </div>
+
+                <!-- Explainable AI: Grad-CAM Attention Heatmap -->
+                <div id="gradCamBox" class="hidden bg-gray-900 rounded-2xl p-5 mb-4 shadow-lg border border-gray-800">
+                    <div class="flex justify-between items-center mb-3">
+                        <h6 class="font-bold text-sm text-white flex items-center gap-2"><i data-lucide="eye"
+                                class="text-amber-400 w-4 h-4"></i> Grad-CAM AI Heatmap</h6>
+                        <span
+                            class="px-2 py-0.5 bg-amber-400 text-amber-900 text-[10px] uppercase tracking-wider font-extrabold rounded-md">Explainable
+                            AI</span>
+                    </div>
+                    <p class="text-xs text-gray-400 mb-3">Thermal overlay highlights the exact foliar lesions driving
+                        this neural network diagnosis.</p>
+                    <div class="text-center rounded-xl overflow-hidden bg-black flex justify-center p-2">
+                        <img id="gradCamImage"
+                            class="max-h-[300px] w-auto border border-gray-700 rounded-lg shadow-md object-contain">
+                    </div>
+                </div>
+
+                <!-- Quality Warnings (if any) -->
+                <div id="qualityWarningsContainer" class="hidden mb-4">
+                    <div class="bg-amber-50 border border-amber-200 text-amber-800 text-sm font-semibold rounded-xl p-4 flex gap-3"
+                        id="qualityWarningsList"></div>
+                </div>
+
+                <!-- Precautions -->
+                <div id="precautionsBox"
+                    class="mb-5 bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
+                    <div class="bg-gray-50 px-5 py-3 border-b border-gray-100">
+                        <h6 class="font-bold text-sm text-gray-900 flex items-center gap-2"><i
+                                data-lucide="clipboard-check" class="text-emerald-500 w-4 h-4"></i> Recommended
+                            Treatments</h6>
+                    </div>
+                    <ul class="p-0 m-0" id="precautionsList"></ul>
+                </div>
+
+                <!-- Alternatives -->
+                <div id="alternativesBox" class="hidden mb-4">
+                    <h6 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 ms-1">Differential
+                        Diagnoses</h6>
+                    <div id="alternativesList" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Save to Farm Section -->
+                {% if session.get('user_id') and user_crops %}
+                <div id="saveToFarmSection" class="mt-6 pt-6 border-t border-gray-100">
+                    <button type="button"
+                        class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm py-4 rounded-xl shadow-md transition-transform hover:-translate-y-0.5 flex justify-center items-center gap-2"
+                        id="btnSaveToFarm">
+                        <i data-lucide="file-check-2" class="w-4 h-4"></i> Log Diagnosis (+10 Pts)
+                    </button>
+                    <div id="saveToFarmFeedback" class="mt-3 text-center text-xs font-bold"></div>
+                </div>
+                {% endif %}
+            </div>
+
         </div>
 
         <!-- RIGHT COLUMN: SMART IRRIGATION ADVISORY -->
-        <div class="col-lg-5">
-            <div class="card scanner-card shadow-sm h-100 p-4">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <h4 class="fw-bold mb-0 text-dark"><i class="fa fa-tint text-primary me-2"></i>Smart Irrigation Advisor</h4>
-                    {% if session.get('user_id') and user_crops %}
-                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1" id="btnAutofillAdvisory" title="Auto-fill from selected active farm">
-                        <i class="fa fa-magic me-1"></i> Auto-fill Farm
-                    </button>
-                    {% endif %}
-                </div>
-                <p class="text-muted small mb-4">Input live farm sensor parameters to generate an auditable irrigation decision.</p>
+        <div
+            class="bg-white rounded-[2rem] p-6 lg:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col h-full sticky top-28">
 
-                <form id="advisoryForm">
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Target Crop</label>
-                            <input type="text" class="form-control rounded-3" name="crop" value="Tomato" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Growth Stage</label>
-                            <select class="form-select rounded-3" name="stage">
-                                <option value="vegetative">Vegetative</option>
-                                <option value="flowering">Flowering</option>
-                                <option value="growing" selected>Growing</option>
-                                <option value="ripening">Ripening</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Soil Moisture (%)</label>
-                            <input type="number" min="0" max="100" class="form-control rounded-3" name="soil_moisture_pct" value="32" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Temperature (°C)</label>
-                            <input type="number" step="0.5" class="form-control rounded-3" name="temperature_c" value="30" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Humidity (%)</label>
-                            <input type="number" min="0" max="100" class="form-control rounded-3" name="humidity_pct" value="65" required>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">Rain Forecast (mm)</label>
-                            <input type="number" step="0.1" min="0" class="form-control rounded-3" name="forecast_rain_mm" value="5" required>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-bold">Rain Probability (%)</label>
-                            <input type="number" min="0" max="100" class="form-control rounded-3" name="rain_probability_pct" value="70" required>
-                        </div>
+            <div class="flex justify-between items-start mb-2">
+                <h4 class="font-bold text-xl text-gray-900 flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                        <i data-lucide="droplet" class="w-4 h-4"></i>
                     </div>
-
-                    <div class="mt-4">
-                        <button type="submit" class="btn btn-primary action-btn-pill w-100 shadow-sm" id="btnGetAdvisory">
-                            <i class="fa fa-calculator me-1"></i> Calculate Irrigation Action
-                        </button>
-                    </div>
-                </form>
-
-                <!-- ADVISORY RESULT -->
-                <div id="advisoryResultContainer" class="mt-4 pt-3 border-top d-none">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="fw-bold mb-0 text-dark" id="advisoryAction">Irrigation Action</h5>
-                        <span class="badge bg-primary fs-6 px-3 py-1 rounded-pill" id="advisoryScore">Score: 85</span>
-                    </div>
-                    <div class="p-3 bg-light rounded-4 mb-3 border">
-                        <p class="mb-1 text-dark fw-semibold" id="advisoryReason"></p>
-                    </div>
-                    <h6 class="fw-bold text-muted small text-uppercase mb-2">Decision Logic Trace:</h6>
-                    <ul class="small text-muted ps-3 mb-0" id="advisoryTrace"></ul>
-                </div>
+                    Irrigation Advisor
+                </h4>
+                {% if session.get('user_id') and user_crops %}
+                <button type="button"
+                    class="px-3 py-1.5 border border-indigo-200 text-indigo-600 hover:bg-indigo-50 text-xs font-bold rounded-full transition-colors flex items-center gap-1.5 shadow-sm"
+                    id="btnAutofillAdvisory" title="Auto-fill from selected active farm">
+                    <i data-lucide="wand-2" class="w-3 h-3"></i> Auto-fill
+                </button>
+                {% endif %}
             </div>
+
+            <p class="text-gray-500 text-sm font-medium mb-8">Input live parameters to generate an auditable irrigation
+                decision.</p>
+
+            <form id="advisoryForm" class="space-y-4 flex-grow flex flex-col">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 ml-1">Target Crop</label>
+                        <input type="text"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3 outline-none transition-all"
+                            name="crop" value="Tomato" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 ml-1">Growth Stage</label>
+                        <select
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3 outline-none transition-all appearance-none cursor-pointer"
+                            name="stage">
+                            <option value="vegetative">Vegetative</option>
+                            <option value="flowering">Flowering</option>
+                            <option value="growing" selected>Growing</option>
+                            <option value="ripening">Ripening</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 ml-1">Soil Moisture (%)</label>
+                        <input type="number" min="0" max="100"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3 outline-none transition-all"
+                            name="soil_moisture_pct" value="32" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 ml-1">Temperature (°C)</label>
+                        <input type="number" step="0.5"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3 outline-none transition-all"
+                            name="temperature_c" value="30" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 ml-1">Humidity (%)</label>
+                        <input type="number" min="0" max="100"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3 outline-none transition-all"
+                            name="humidity_pct" value="65" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 ml-1">Rain Forecast (mm)</label>
+                        <input type="number" step="0.1" min="0"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3 outline-none transition-all"
+                            name="forecast_rain_mm" value="5" required>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-gray-600 mb-1.5 ml-1">Rain Probability (%)</label>
+                        <input type="number" min="0" max="100"
+                            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm font-semibold rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 block p-3 outline-none transition-all"
+                            name="rain_probability_pct" value="70" required>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-6">
+                    <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-4 rounded-xl shadow-md hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                        id="btnGetAdvisory">
+                        <i data-lucide="calculator" class="w-4 h-4"></i> Calculate Action
+                    </button>
+                </div>
+            </form>
+
+            <!-- ADVISORY RESULT -->
+            <div id="advisoryResultContainer"
+                class="hidden mt-6 pt-6 border-t border-gray-100 flex-col animate-in fade-in duration-500">
+                <div class="flex justify-between items-center mb-3">
+                    <h5 class="font-display font-black text-xl text-gray-900 m-0" id="advisoryAction">Irrigation Action
+                    </h5>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full shadow-inner"
+                        id="advisoryScore">Score: 85</span>
+                </div>
+                <div class="bg-gray-50 border border-gray-200 p-4 rounded-xl mb-4 text-sm font-semibold text-gray-700 leading-relaxed"
+                    id="advisoryReason"></div>
+
+                <h6 class="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-2 ml-1">Decision Logic
+                    Trace:</h6>
+                <ul class="text-xs text-gray-500 font-medium space-y-1.5 bg-white border border-gray-100 shadow-sm p-4 rounded-xl"
+                    id="advisoryTrace"></ul>
+            </div>
+
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block js %}
 <script>
-let mediaStream = null;
-let latestDiagnosisData = null;
-let currentCropFilter = 'all';
-let lastUploadedPayload = null;
-let currentUploadFile = null;
+    lucide.createIcons();
 
-function displaySelectedFile(file) {
-    if (!file) return;
-    if (!file.type || !file.type.startsWith('image/')) {
-        alert('Please select or drop a valid image file (PNG, JPG, JPEG).');
-        return;
+    let mediaStream = null;
+    let latestDiagnosisData = null;
+    let currentCropFilter = 'all';
+    let lastUploadedPayload = null;
+    let currentUploadFile = null;
+
+    // Tab Switching UI
+    document.querySelectorAll('.scan-tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Toggle Buttons
+            document.querySelectorAll('.scan-tab-btn').forEach(b => {
+                b.classList.remove('active', 'bg-white', 'text-gray-900', 'shadow-sm', 'border-gray-200');
+                b.classList.add('text-gray-500', 'border-transparent');
+            });
+            e.target.classList.add('active', 'bg-white', 'text-gray-900', 'shadow-sm', 'border-gray-200');
+            e.target.classList.remove('text-gray-500', 'border-transparent');
+
+            // Target panels
+            document.querySelectorAll('.scan-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelector(e.target.getAttribute('data-target')).classList.remove('hidden');
+        });
+    });
+
+    function displaySelectedFile(file) {
+        if (!file) return;
+        if (!file.type || !file.type.startsWith('image/')) {
+            alert('Please select or drop a valid image file (PNG, JPG, JPEG).');
+            return;
+        }
+        currentUploadFile = file;
+        lastUploadedPayload = { type: 'file', data: file, filename: file.name };
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const preview = document.getElementById('uploadPreview');
+            preview.src = e.target.result;
+            document.getElementById('uploadPreviewBox').classList.remove('hidden');
+            document.getElementById('dropZone').classList.add('py-4');
+            document.getElementById('dropZone').classList.remove('py-8');
+        };
+        reader.readAsDataURL(file);
     }
-    currentUploadFile = file;
-    lastUploadedPayload = { type: 'file', data: file, filename: file.name };
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const preview = document.getElementById('uploadPreview');
-        preview.src = e.target.result;
-        document.getElementById('uploadPreviewBox').classList.remove('d-none');
-    };
-    reader.readAsDataURL(file);
-}
 
-function previewUploadImage(event) {
-    const file = event.target.files && event.target.files[0];
-    if (file) displaySelectedFile(file);
-}
+    function setCropFilter(cropKey, autoDiagnose = true) {
+        currentCropFilter = (cropKey || 'all').toLowerCase();
 
-function setCropFilter(cropKey, autoDiagnose = true) {
-    currentCropFilter = (cropKey || 'all').toLowerCase();
-    
-    // Update pill buttons visual state
+        // Update pill buttons visual state
+        document.querySelectorAll('#cropPillsContainer .crop-pill').forEach(btn => {
+            if (btn.getAttribute('data-crop') === currentCropFilter) {
+                btn.classList.add('bg-emerald-600', 'text-white', 'border-emerald-600', 'shadow-sm', 'active');
+                btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-200');
+            } else {
+                btn.classList.remove('bg-emerald-600', 'text-white', 'border-emerald-600', 'shadow-sm', 'active');
+                btn.classList.add('bg-white', 'text-gray-600', 'border-gray-200');
+            }
+        });
+
+        const badge = document.getElementById('activeCropBadge');
+        const resetBtn = document.getElementById('btnResetCropPills');
+        if (currentCropFilter === 'all') {
+            badge.className = 'px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full flex items-center gap-1';
+            badge.innerHTML = '<i data-lucide="globe" class="w-3 h-3"></i> Auto-Detect Active';
+            if (resetBtn) resetBtn.classList.add('hidden');
+        } else {
+            const cropDisplay = currentCropFilter.charAt(0).toUpperCase() + currentCropFilter.slice(1);
+            badge.className = 'px-3 py-1 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-full flex items-center gap-1 shadow-sm';
+            badge.innerHTML = `<i data-lucide="filter" class="w-3 h-3"></i> Focus: ${cropDisplay}`;
+            if (resetBtn) resetBtn.classList.remove('hidden');
+        }
+        lucide.createIcons();
+
+        // Re-evaluate current leaf automatically if already uploaded/captured
+        if (autoDiagnose && lastUploadedPayload) {
+            executeDiagnosis(lastUploadedPayload);
+        }
+    }
+
+    // Hook up crop focus pills
     document.querySelectorAll('#cropPillsContainer .crop-pill').forEach(btn => {
-        if (btn.getAttribute('data-crop') === currentCropFilter) {
-            btn.classList.add('btn-success', 'active');
-            btn.classList.remove('btn-outline-secondary');
-        } else {
-            btn.classList.remove('btn-success', 'active');
-            btn.classList.add('btn-outline-secondary');
-        }
+        btn.addEventListener('click', () => {
+            setCropFilter(btn.getAttribute('data-crop'), true);
+        });
     });
 
-    const badge = document.getElementById('activeCropBadge');
-    const resetBtn = document.getElementById('btnResetCropPills');
-    if (currentCropFilter === 'all') {
-        badge.className = 'badge bg-success-subtle text-success small px-2 py-1 rounded-pill';
-        badge.innerHTML = '<i class="fa fa-globe me-1"></i>Auto-Detect Active';
-        if (resetBtn) resetBtn.classList.add('d-none');
-    } else {
-        const cropDisplay = currentCropFilter.charAt(0).toUpperCase() + currentCropFilter.slice(1);
-        badge.className = 'badge bg-primary-subtle text-primary small px-2 py-1 rounded-pill';
-        badge.innerHTML = `<i class="fa fa-filter me-1"></i>Focus: ${cropDisplay}`;
-        if (resetBtn) resetBtn.classList.remove('d-none');
-    }
-
-    // Re-evaluate current leaf automatically if already uploaded/captured
-    if (autoDiagnose && lastUploadedPayload) {
-        executeDiagnosis(lastUploadedPayload);
-    }
-}
-
-// Hook up crop focus pills
-document.querySelectorAll('#cropPillsContainer .crop-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-        setCropFilter(btn.getAttribute('data-crop'), true);
-    });
-});
-
-// Farm selection sync
-const farmSelect = document.getElementById('userFarmSelect');
-if (farmSelect) {
-    farmSelect.addEventListener('change', () => {
-        if (!farmSelect.value) {
-            setCropFilter('all', true);
-            return;
-        }
-        const opt = farmSelect.options[farmSelect.selectedIndex];
-        const farmCrop = (opt.getAttribute('data-crop') || '').toLowerCase();
-        let targetCrop = 'all';
-        if (farmCrop.includes('apple')) targetCrop = 'apple';
-        else if (farmCrop.includes('tomato')) targetCrop = 'tomato';
-        else if (farmCrop.includes('potato')) targetCrop = 'potato';
-        else if (farmCrop.includes('corn') || farmCrop.includes('maize')) targetCrop = 'corn';
-        else if (farmCrop.includes('grape')) targetCrop = 'grape';
-        else if (farmCrop.includes('pepper')) targetCrop = 'pepper';
-        else if (farmCrop.includes('orange') || farmCrop.includes('citrus')) targetCrop = 'citrus';
-        setCropFilter(targetCrop, true);
-    });
-}
-
-async function executeDiagnosis(payloadObj) {
-    const btnUpload = document.getElementById('btnAnalyzeUpload');
-    if (btnUpload) {
-        btnUpload.disabled = true;
-        btnUpload.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Analyzing...';
-    }
-
-    try {
-        let res, data;
-        if (payloadObj.type === 'file' || payloadObj.type === 'blob') {
-            const formData = new FormData();
-            formData.append('file', payloadObj.data, payloadObj.filename || 'leaf.jpg');
-            if (currentCropFilter && currentCropFilter !== 'all') {
-                formData.append('crop_filter', currentCropFilter);
+    // Farm selection sync
+    const farmSelect = document.getElementById('userFarmSelect');
+    if (farmSelect) {
+        farmSelect.addEventListener('change', () => {
+            if (!farmSelect.value) {
+                setCropFilter('all', true);
+                return;
             }
-            res = await fetch('/api/disease/predict', {
-                method: 'POST',
-                body: formData
-            });
-            data = await res.json();
-        } else if (payloadObj.type === 'esp32') {
-            res = await fetch('/api/disease/esp32', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    host: payloadObj.host,
-                    crop_filter: currentCropFilter !== 'all' ? currentCropFilter : ''
-                })
-            });
-            data = await res.json();
-        }
+            const opt = farmSelect.options[farmSelect.selectedIndex];
+            const farmCrop = (opt.getAttribute('data-crop') || '').toLowerCase();
+            let targetCrop = 'all';
+            if (farmCrop.includes('apple')) targetCrop = 'apple';
+            else if (farmCrop.includes('tomato')) targetCrop = 'tomato';
+            else if (farmCrop.includes('potato')) targetCrop = 'potato';
+            else if (farmCrop.includes('corn') || farmCrop.includes('maize')) targetCrop = 'corn';
+            else if (farmCrop.includes('grape')) targetCrop = 'grape';
+            else if (farmCrop.includes('pepper')) targetCrop = 'pepper';
+            else if (farmCrop.includes('orange') || farmCrop.includes('citrus')) targetCrop = 'citrus';
+            setCropFilter(targetCrop, true);
+        });
+    }
 
-        if (data && data.error) {
-            alert(data.error);
-        } else if (data) {
-            renderDiseaseResult(data);
-        }
-    } catch (err) {
-        alert('Diagnosis failed: ' + err.message);
-    } finally {
+    async function executeDiagnosis(payloadObj) {
+        const btnUpload = document.getElementById('btnAnalyzeUpload');
         if (btnUpload) {
-            btnUpload.disabled = false;
-            btnUpload.innerHTML = '<i class="fa fa-microscope me-1"></i> Analyze Foliage';
+            btnUpload.disabled = true;
+            btnUpload.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Analyzing...';
         }
-    }
-}
-
-// Render Disease Result
-function renderDiseaseResult(data) {
-    latestDiagnosisData = data;
-    const container = document.getElementById('diagnosisContainer');
-    container.classList.remove('d-none');
-    
-    document.getElementById('diseaseLabel').textContent = data.label || 'Undetected';
-    const confPct = Math.round((data.confidence || 0) * 100);
-    const confBadge = document.getElementById('diseaseConfidence');
-    confBadge.textContent = `${confPct}% Confidence`;
-    confBadge.className = confPct > 70 ? 'badge bg-success fs-6 px-3 py-2 rounded-pill' : 'badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill';
-
-    // Conditioned Crop Filter Badge
-    const condBadge = document.getElementById('cropConditionedBadge');
-    const condText = document.getElementById('cropConditionedText');
-    if (data.crop_filter_applied) {
-        condText.textContent = `Conditioned: ${data.crop_filter_applied}`;
-        condBadge.classList.remove('d-none');
-    } else {
-        condBadge.classList.add('d-none');
-    }
-
-    // TTA Multi-View Badge
-    const ttaBadge = document.getElementById('ttaBadge');
-    if (data.is_tta) {
-        ttaBadge.classList.remove('d-none');
-    } else {
-        ttaBadge.classList.add('d-none');
-    }
-
-    document.getElementById('modelNoticeText').textContent = data.model_notice || '';
-
-    // Smart Cross-Crop Disambiguation Recommendation Banner
-    const disambigBanner = document.getElementById('cropDisambiguationBanner');
-    const disambigText = document.getElementById('disambiguationText');
-    const disambigActionBox = document.getElementById('disambiguationActionBox');
-
-    if (data.crop_refinements && data.crop_refinements.length > 0) {
-        const ref = data.crop_refinements[0];
-        const matchPct = Math.round(ref.conditioned_confidence * 100);
-        disambigText.innerHTML = `Lesion symptoms also closely match <b>${ref.disease_name}</b> on <b>${ref.display_name}</b> foliage (${matchPct}% match). If this leaf is from a ${ref.display_name} tree, refine focus:`;
-        disambigActionBox.innerHTML = `
-            <button type="button" class="btn btn-primary action-btn-pill shadow-sm py-1 px-3" onclick="setCropFilter('${ref.crop_key}', true)">
-                <i class="fa fa-redo-alt me-1"></i> Diagnose for ${ref.display_name} (${matchPct}%)
-            </button>
-        `;
-        disambigBanner.classList.remove('d-none');
-    } else {
-        disambigBanner.classList.add('d-none');
-    }
-
-    // Grad-CAM Visual Heatmap
-    const camBox = document.getElementById('gradCamBox');
-    const camImg = document.getElementById('gradCamImage');
-    if (data.gradcam_b64) {
-        camImg.src = 'data:image/jpeg;base64,' + data.gradcam_b64;
-        camBox.classList.remove('d-none');
-    } else {
-        camBox.classList.add('d-none');
-    }
-
-    // Warnings
-    const warnBox = document.getElementById('qualityWarningsContainer');
-    const warnList = document.getElementById('qualityWarningsList');
-    if (data.quality_warnings && data.quality_warnings.length > 0) {
-        warnList.innerHTML = '<i class="fa fa-exclamation-triangle me-2"></i>' + data.quality_warnings.join('<br>');
-        warnBox.classList.remove('d-none');
-    } else {
-        warnBox.classList.add('d-none');
-    }
-
-    // Precautions
-    const precList = document.getElementById('precautionsList');
-    precList.innerHTML = '';
-    if (data.precautions && data.precautions.length > 0) {
-        data.precautions.forEach(p => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item bg-transparent ps-0 py-1 text-dark';
-            li.innerHTML = `<i class="fa fa-check-circle text-success me-2"></i>${p}`;
-            precList.appendChild(li);
-        });
-    }
-
-    // Alternatives
-    const altBox = document.getElementById('alternativesBox');
-    const altList = document.getElementById('alternativesList');
-    altList.innerHTML = '';
-    if (data.alternatives && data.alternatives.length > 0) {
-        data.alternatives.forEach(alt => {
-            const span = document.createElement('span');
-            span.className = 'badge bg-light text-dark border px-3 py-2 rounded-pill';
-            span.textContent = `${alt.label} (${Math.round(alt.confidence * 100)}%)`;
-            altList.appendChild(span);
-        });
-        altBox.classList.remove('d-none');
-    } else {
-        altBox.classList.add('d-none');
-    }
-
-    container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-// Drag and Drop Event Listeners for File Upload
-const dropZone = document.getElementById('dropZone');
-const leafInput = document.getElementById('leafImageInput');
-
-if (dropZone && leafInput) {
-    dropZone.addEventListener('click', (e) => {
-        if (e.target !== leafInput) {
-            leafInput.click();
-        }
-    });
-
-    leafInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-            displaySelectedFile(e.target.files[0]);
-        }
-    });
-
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evtName => {
-        dropZone.addEventListener(evtName, (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-        }, false);
-    });
-
-    ['dragenter', 'dragover'].forEach(evtName => {
-        dropZone.addEventListener(evtName, () => {
-            dropZone.classList.add('drag-over');
-        });
-    });
-
-    ['dragleave', 'dragend', 'drop'].forEach(evtName => {
-        dropZone.addEventListener(evtName, () => {
-            dropZone.classList.remove('drag-over');
-        });
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        if (dt && dt.files && dt.files.length > 0) {
-            const file = dt.files[0];
-            try {
-                const container = new DataTransfer();
-                container.items.add(file);
-                leafInput.files = container.files;
-            } catch (err) {
-                // Fallback if browser restricts DataTransfer assignment
-            }
-            displaySelectedFile(file);
-        }
-    });
-
-    // Prevent default browser file drop behavior outside the dropzone
-    window.addEventListener('dragover', (e) => {
-        if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
-            e.preventDefault();
-        }
-    }, false);
-    window.addEventListener('drop', (e) => {
-        if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
-            e.preventDefault();
-        }
-    }, false);
-}
-
-// 1. Upload Form Submission
-document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const fileInput = document.getElementById('leafImageInput');
-    const fileToUpload = (fileInput && fileInput.files && fileInput.files[0]) || currentUploadFile;
-    if (!fileToUpload) {
-        alert('Please select or drop an image file first.');
-        return;
-    }
-
-    lastUploadedPayload = { type: 'file', data: fileToUpload, filename: fileToUpload.name };
-    executeDiagnosis(lastUploadedPayload);
-});
-
-// 2. Camera Controls
-const video = document.getElementById('webcamVideo');
-const canvas = document.getElementById('photoCanvas');
-const btnStart = document.getElementById('btnStartCamera');
-const btnCapture = document.getElementById('btnCaptureAnalyze');
-const btnStop = document.getElementById('btnStopCamera');
-const cameraPlaceholder = document.getElementById('cameraPlaceholder');
-
-btnStart.addEventListener('click', async () => {
-    try {
-        mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: 'environment' } }
-        });
-        video.srcObject = mediaStream;
-        video.classList.remove('d-none');
-        cameraPlaceholder.classList.add('d-none');
-        btnStart.classList.add('d-none');
-        btnCapture.classList.remove('d-none');
-        btnStop.classList.remove('d-none');
-    } catch (err) {
-        alert('Could not open camera: ' + err.message);
-    }
-});
-
-btnStop.addEventListener('click', () => {
-    if (mediaStream) {
-        mediaStream.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-    }
-    video.classList.add('d-none');
-    canvas.classList.add('d-none');
-    cameraPlaceholder.classList.remove('d-none');
-    btnStart.classList.remove('d-none');
-    btnCapture.classList.add('d-none');
-    btnStop.classList.add('d-none');
-});
-
-btnCapture.addEventListener('click', () => {
-    if (!mediaStream) return;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    
-    canvas.toBlob((blob) => {
-        lastUploadedPayload = { type: 'blob', data: blob, filename: 'camera_leaf.jpg' };
-        executeDiagnosis(lastUploadedPayload);
-    }, 'image/jpeg', 0.92);
-});
-
-// 3. ESP32 Form
-document.getElementById('esp32Form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const host = document.getElementById('esp32Host').value.trim();
-    lastUploadedPayload = { type: 'esp32', host: host };
-    executeDiagnosis(lastUploadedPayload);
-});
-
-// 4. Advisory Form Submission
-document.getElementById('advisoryForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    const payload = Object.fromEntries(formData.entries());
-    
-    const btn = document.getElementById('btnGetAdvisory');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Evaluating Rules...';
-
-    try {
-        const res = await fetch('/api/advisory', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.error) {
-            alert(data.error);
-        } else {
-            const container = document.getElementById('advisoryResultContainer');
-            container.classList.remove('d-none');
-            
-            document.getElementById('advisoryAction').textContent = `Action: ${data.irrigation_action}`;
-            document.getElementById('advisoryScore').textContent = `Sustainability: ${data.sustainability_score}/100`;
-            document.getElementById('advisoryReason').textContent = data.reason;
-
-            const traceUl = document.getElementById('advisoryTrace');
-            traceUl.innerHTML = '';
-            if (data.trace) {
-                data.trace.forEach(t => {
-                    const li = document.createElement('li');
-                    li.textContent = t;
-                    traceUl.appendChild(li);
-                });
-            }
-        }
-    } catch (err) {
-        alert('Advisory calculation failed: ' + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa fa-calculator me-1"></i> Calculate Irrigation Action';
-    }
-});
-
-// 5. Save Diagnosis to Farm
-const btnSaveToFarm = document.getElementById('btnSaveToFarm');
-if (btnSaveToFarm) {
-    btnSaveToFarm.addEventListener('click', async () => {
-        const farmSelect = document.getElementById('userFarmSelect');
-        const farmId = farmSelect ? farmSelect.value : null;
-        const feedback = document.getElementById('saveToFarmFeedback');
-
-        if (!farmId) {
-            alert('Please select an active farm from the dropdown at the top of the scanner.');
-            if (farmSelect) farmSelect.focus();
-            return;
-        }
-
-        if (!latestDiagnosisData) {
-            alert('No foliage scan available to save.');
-            return;
-        }
-
-        btnSaveToFarm.disabled = true;
-        btnSaveToFarm.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Saving to Field Record...';
 
         try {
-            const res = await fetch('/api/disease/save_to_farm', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_crop_id: parseInt(farmId),
-                    disease_label: latestDiagnosisData.label,
-                    confidence: latestDiagnosisData.confidence,
-                    precautions: latestDiagnosisData.precautions || []
-                })
-            });
-            const resData = await res.json();
-            if (resData.error) {
-                feedback.className = 'mt-2 text-center small text-danger fw-semibold';
-                feedback.textContent = resData.error;
-            } else {
-                feedback.className = 'mt-2 text-center small text-success fw-semibold';
-                feedback.innerHTML = `<i class="fa fa-check-circle me-1"></i> ${resData.message}`;
+            let res, data;
+            if (payloadObj.type === 'file' || payloadObj.type === 'blob') {
+                const formData = new FormData();
+                formData.append('file', payloadObj.data, payloadObj.filename || 'leaf.jpg');
+                if (currentCropFilter && currentCropFilter !== 'all') {
+                    formData.append('crop_filter', currentCropFilter);
+                }
+                res = await fetch('/api/disease/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                data = await res.json();
+            } else if (payloadObj.type === 'esp32') {
+                res = await fetch('/api/disease/esp32', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        host: payloadObj.host,
+                        crop_filter: currentCropFilter !== 'all' ? currentCropFilter : ''
+                    })
+                });
+                data = await res.json();
+            }
+
+            if (data && data.error) {
+                alert(data.error);
+            } else if (data) {
+                renderDiseaseResult(data);
             }
         } catch (err) {
-            feedback.className = 'mt-2 text-center small text-danger fw-semibold';
-            feedback.textContent = 'Failed to save: ' + err.message;
+            alert('Diagnosis failed: ' + err.message);
         } finally {
-            btnSaveToFarm.disabled = false;
-            btnSaveToFarm.innerHTML = '<i class="fa fa-file-medical me-1"></i> Log Diagnosis to Selected Farm (+10 Pts)';
+            if (btnUpload) {
+                btnUpload.disabled = false;
+                btnUpload.innerHTML = '<i data-lucide="microscope" class="w-4 h-4 mr-2"></i> Analyze Foliage';
+                lucide.createIcons();
+            }
         }
-    });
-}
+    }
 
-// 6. Auto-fill Advisory from Selected Farm
-const btnAutofill = document.getElementById('btnAutofillAdvisory');
-if (btnAutofill) {
-    btnAutofill.addEventListener('click', () => {
-        const farmSelect = document.getElementById('userFarmSelect');
-        if (!farmSelect || !farmSelect.value) {
-            alert('Please select a farm from the dropdown above to auto-fill its crop details.');
+    // Render Disease Result
+    function renderDiseaseResult(data) {
+        latestDiagnosisData = data;
+        const container = document.getElementById('diagnosisContainer');
+        container.classList.remove('hidden');
+        container.classList.add('flex', 'flex-col');
+
+        document.getElementById('diseaseLabel').textContent = data.label || 'Undetected';
+        const confPct = Math.round((data.confidence || 0) * 100);
+        const confBadge = document.getElementById('diseaseConfidence');
+        confBadge.textContent = `${confPct}% Confident`;
+        confBadge.className = confPct > 70
+            ? 'px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-full shadow-sm'
+            : 'px-3 py-1.5 bg-amber-400 text-amber-900 text-xs font-bold rounded-full shadow-sm';
+
+        // Conditioned Crop Filter Badge
+        const condBadge = document.getElementById('cropConditionedBadge');
+        const condText = document.getElementById('cropConditionedText');
+        if (data.crop_filter_applied) {
+            condText.textContent = `Conditioned: ${data.crop_filter_applied}`;
+            condBadge.classList.remove('hidden');
+        } else {
+            condBadge.classList.add('hidden');
+        }
+
+        // TTA Multi-View Badge
+        const ttaBadge = document.getElementById('ttaBadge');
+        if (data.is_tta) {
+            ttaBadge.classList.remove('hidden');
+        } else {
+            ttaBadge.classList.add('hidden');
+        }
+
+        document.getElementById('modelNoticeText').textContent = data.model_notice || '';
+
+        // Smart Cross-Crop Disambiguation
+        const disambigBanner = document.getElementById('cropDisambiguationBanner');
+        const disambigText = document.getElementById('disambiguationText');
+        const disambigActionBox = document.getElementById('disambiguationActionBox');
+
+        if (data.crop_refinements && data.crop_refinements.length > 0) {
+            const ref = data.crop_refinements[0];
+            const matchPct = Math.round(ref.conditioned_confidence * 100);
+            disambigText.innerHTML = `Lesion symptoms also closely match <b>${ref.disease_name}</b> on <b>${ref.display_name}</b> foliage (${matchPct}% match). If this leaf is from a ${ref.display_name} tree, refine focus:`;
+            disambigActionBox.innerHTML = `
+            <button type="button" class="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl whitespace-nowrap transition-colors" onclick="setCropFilter('${ref.crop_key}', true)">
+                Diagnose for ${ref.display_name}
+            </button>
+        `;
+            disambigBanner.classList.remove('hidden');
+        } else {
+            disambigBanner.classList.add('hidden');
+        }
+
+        // Grad-CAM Visual Heatmap
+        const camBox = document.getElementById('gradCamBox');
+        const camImg = document.getElementById('gradCamImage');
+        if (data.gradcam_b64) {
+            camImg.src = 'data:image/jpeg;base64,' + data.gradcam_b64;
+            camBox.classList.remove('hidden');
+        } else {
+            camBox.classList.add('hidden');
+        }
+
+        // Warnings
+        const warnBox = document.getElementById('qualityWarningsContainer');
+        const warnList = document.getElementById('qualityWarningsList');
+        if (data.quality_warnings && data.quality_warnings.length > 0) {
+            warnList.innerHTML = '<i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0"></i> <div>' + data.quality_warnings.join('<br>') + '</div>';
+            warnBox.classList.remove('hidden');
+        } else {
+            warnBox.classList.add('hidden');
+        }
+
+        // Precautions
+        const precList = document.getElementById('precautionsList');
+        precList.innerHTML = '';
+        if (data.precautions && data.precautions.length > 0) {
+            data.precautions.forEach(p => {
+                const li = document.createElement('li');
+                li.className = 'px-5 py-3 border-b border-gray-100 last:border-0 text-sm font-medium text-gray-700 flex items-start gap-3';
+                li.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0"></i> <span>${p}</span>`;
+                precList.appendChild(li);
+            });
+        } else {
+            precList.innerHTML = `<li class="px-5 py-3 text-sm text-gray-500 italic">No specific treatments listed. Consult an expert.</li>`
+        }
+
+        // Alternatives
+        const altBox = document.getElementById('alternativesBox');
+        const altList = document.getElementById('alternativesList');
+        altList.innerHTML = '';
+        if (data.alternatives && data.alternatives.length > 0) {
+            data.alternatives.forEach(alt => {
+                const span = document.createElement('span');
+                span.className = 'px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-md border border-gray-200';
+                span.textContent = `${alt.label} (${Math.round(alt.confidence * 100)}%)`;
+                altList.appendChild(span);
+            });
+            altBox.classList.remove('hidden');
+        } else {
+            altBox.classList.add('hidden');
+        }
+
+        lucide.createIcons();
+        container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // Drag and Drop Event Listeners for File Upload
+    const dropZone = document.getElementById('dropZone');
+    const leafInput = document.getElementById('leafImageInput');
+
+    if (dropZone && leafInput) {
+        dropZone.addEventListener('click', (e) => {
+            if (e.target !== leafInput) {
+                leafInput.click();
+            }
+        });
+
+        leafInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                displaySelectedFile(e.target.files[0]);
+            }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evtName => {
+            dropZone.addEventListener(evtName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(evtName => {
+            dropZone.addEventListener(evtName, () => {
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'dragend', 'drop'].forEach(evtName => {
+            dropZone.addEventListener(evtName, () => {
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            if (dt && dt.files && dt.files.length > 0) {
+                const file = dt.files[0];
+                try {
+                    const container = new DataTransfer();
+                    container.items.add(file);
+                    leafInput.files = container.files;
+                } catch (err) { }
+                displaySelectedFile(file);
+            }
+        });
+    }
+
+    // 1. Upload Form Submission
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('leafImageInput');
+        const fileToUpload = (fileInput && fileInput.files && fileInput.files[0]) || currentUploadFile;
+        if (!fileToUpload) {
+            alert('Please select or drop an image file first.');
             return;
         }
-        const selectedOpt = farmSelect.options[farmSelect.selectedIndex];
-        const cropName = selectedOpt.getAttribute('data-crop') || 'Tomato';
-        
-        const cropInput = document.querySelector('#advisoryForm input[name="crop"]');
-        if (cropInput) {
-            cropInput.value = cropName.split(' ')[0].split('(')[0].trim();
+
+        lastUploadedPayload = { type: 'file', data: fileToUpload, filename: fileToUpload.name };
+        executeDiagnosis(lastUploadedPayload);
+    });
+
+    // 2. Camera Controls
+    const video = document.getElementById('webcamVideo');
+    const canvas = document.getElementById('photoCanvas');
+    const btnStart = document.getElementById('btnStartCamera');
+    const btnCapture = document.getElementById('btnCaptureAnalyze');
+    const btnStop = document.getElementById('btnStopCamera');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+
+    if (btnStart) {
+        btnStart.addEventListener('click', async () => {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { ideal: 'environment' } }
+                });
+                video.srcObject = mediaStream;
+                video.classList.remove('hidden');
+                cameraPlaceholder.classList.add('hidden');
+                btnStart.classList.add('hidden');
+                btnCapture.classList.remove('hidden');
+                btnStop.classList.remove('hidden');
+            } catch (err) {
+                alert('Could not open camera: ' + err.message);
+            }
+        });
+
+        btnStop.addEventListener('click', () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            video.classList.add('hidden');
+            canvas.classList.add('hidden');
+            cameraPlaceholder.classList.remove('hidden');
+            btnStart.classList.remove('hidden');
+            btnCapture.classList.add('hidden');
+            btnStop.classList.add('hidden');
+        });
+
+        btnCapture.addEventListener('click', () => {
+            if (!mediaStream) return;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            canvas.toBlob((blob) => {
+                lastUploadedPayload = { type: 'blob', data: blob, filename: 'camera_leaf.jpg' };
+                executeDiagnosis(lastUploadedPayload);
+            }, 'image/jpeg', 0.92);
+        });
+    }
+
+    // 3. ESP32 Form
+    document.getElementById('esp32Form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const host = document.getElementById('esp32Host').value.trim();
+        lastUploadedPayload = { type: 'esp32', host: host };
+        executeDiagnosis(lastUploadedPayload);
+    });
+
+    // 4. Advisory Form Submission
+    document.getElementById('advisoryForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const payload = Object.fromEntries(formData.entries());
+
+        const btn = document.getElementById('btnGetAdvisory');
+        btn.disabled = true;
+        btn.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Evaluating...';
+
+        try {
+            const res = await fetch('/api/advisory', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                const container = document.getElementById('advisoryResultContainer');
+                container.classList.remove('hidden');
+                container.classList.add('flex');
+
+                document.getElementById('advisoryAction').textContent = data.irrigation_action;
+                document.getElementById('advisoryScore').textContent = `Score: ${data.sustainability_score}/100`;
+                document.getElementById('advisoryReason').textContent = data.reason;
+
+                const traceUl = document.getElementById('advisoryTrace');
+                traceUl.innerHTML = '';
+                if (data.trace) {
+                    data.trace.forEach(t => {
+                        const li = document.createElement('li');
+                        li.className = "flex items-start gap-2";
+                        li.innerHTML = `<i data-lucide="corner-down-right" class="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5"></i> <span>${t}</span>`;
+                        traceUl.appendChild(li);
+                    });
+                }
+                lucide.createIcons();
+            }
+        } catch (err) {
+            alert('Advisory calculation failed: ' + err.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="calculator" class="w-4 h-4 mr-2"></i> Calculate Action';
+            lucide.createIcons();
         }
     });
-}
+
+    // 5. Save Diagnosis to Farm
+    const btnSaveToFarm = document.getElementById('btnSaveToFarm');
+    if (btnSaveToFarm) {
+        btnSaveToFarm.addEventListener('click', async () => {
+            const farmSelect = document.getElementById('userFarmSelect');
+            const farmId = farmSelect ? farmSelect.value : null;
+            const feedback = document.getElementById('saveToFarmFeedback');
+
+            if (!farmId) {
+                alert('Please select an active farm from the dropdown at the top of the scanner.');
+                if (farmSelect) farmSelect.focus();
+                return;
+            }
+
+            if (!latestDiagnosisData) {
+                alert('No foliage scan available to save.');
+                return;
+            }
+
+            btnSaveToFarm.disabled = true;
+            btnSaveToFarm.innerHTML = '<svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Saving...';
+
+            try {
+                const res = await fetch('/api/disease/save_to_farm', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_crop_id: parseInt(farmId),
+                        disease_label: latestDiagnosisData.label,
+                        confidence: latestDiagnosisData.confidence,
+                        precautions: latestDiagnosisData.precautions || []
+                    })
+                });
+                const resData = await res.json();
+                if (resData.error) {
+                    feedback.className = 'mt-3 text-center text-xs text-red-500 font-bold';
+                    feedback.textContent = resData.error;
+                } else {
+                    feedback.className = 'mt-3 text-center text-xs text-emerald-600 font-bold';
+                    feedback.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 inline mr-1"></i> ${resData.message}`;
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                feedback.className = 'mt-3 text-center text-xs text-red-500 font-bold';
+                feedback.textContent = 'Failed to save: ' + err.message;
+            } finally {
+                btnSaveToFarm.disabled = false;
+                btnSaveToFarm.innerHTML = '<i data-lucide="file-check-2" class="w-4 h-4 mr-2"></i> Log Diagnosis (+10 Pts)';
+                lucide.createIcons();
+            }
+        });
+    }
+
+    // 6. Auto-fill Advisory from Selected Farm
+    const btnAutofill = document.getElementById('btnAutofillAdvisory');
+    if (btnAutofill) {
+        btnAutofill.addEventListener('click', () => {
+            const farmSelect = document.getElementById('userFarmSelect');
+            if (!farmSelect || !farmSelect.value) {
+                alert('Please select a farm from the dropdown above to auto-fill its crop details.');
+                return;
+            }
+            const selectedOpt = farmSelect.options[farmSelect.selectedIndex];
+            const cropName = selectedOpt.getAttribute('data-crop') || 'Tomato';
+
+            const cropInput = document.querySelector('#advisoryForm input[name="crop"]');
+            if (cropInput) {
+                cropInput.value = cropName.split(' ')[0].split('(')[0].trim();
+            }
+        });
+    }
 </script>
 {% endblock %}
