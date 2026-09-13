@@ -177,6 +177,35 @@ class TestFullPlatformIntegration(unittest.TestCase):
         self.assertGreater(len(chat_data["response"]), 10)
         print("  [PASS] Farmer Community Q&A and 24/7 AI Chatbot Consultation verified")
 
+    def test_05_crop_conditioning_and_smart_disambiguation(self):
+        """Test Differential Crop Focus, conditioned inference, and cross-crop disambiguation."""
+        # Use an existing sample image from validation set
+        sample_path = "data/val/Apple___Apple_scab/0395b847-2c73-4674-826f-33a6afb5b4fe___FREC_Scab 3287.JPG"
+        if os.path.exists(sample_path):
+            with open(sample_path, "rb") as f:
+                img_data = f.read()
+
+            # 1. Conditioned on Apple
+            res_apple = self.client.post("/api/disease/predict", data={
+                "file": (io.BytesIO(img_data), "apple_leaf.jpg"),
+                "crop_filter": "apple"
+            }, content_type="multipart/form-data")
+            self.assertEqual(res_apple.status_code, 200)
+            data_apple = res_apple.get_json()
+            self.assertEqual(data_apple.get("crop_filter_applied"), "Apple")
+            self.assertTrue(data_apple["label"].startswith("Apple___"))
+
+            # 2. Conditioned on Tomato
+            res_tomato = self.client.post("/api/disease/predict", data={
+                "file": (io.BytesIO(img_data), "leaf.jpg"),
+                "crop_filter": "tomato"
+            }, content_type="multipart/form-data")
+            self.assertEqual(res_tomato.status_code, 200)
+            data_tomato = res_tomato.get_json()
+            self.assertEqual(data_tomato.get("crop_filter_applied"), "Tomato")
+            self.assertTrue(data_tomato["label"].startswith("Tomato___"))
+            print("  [PASS] Differential Crop Focus & Conditioning successfully verified")
+
 
 if __name__ == "__main__":
     unittest.main()

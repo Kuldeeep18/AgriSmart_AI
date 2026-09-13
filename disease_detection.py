@@ -44,7 +44,8 @@ def api_predict():
     if len(payload) > MAX_UPLOAD_BYTES:
         return jsonify({"error": "Image size exceeds the 8 MB limit."}), 413
 
-    result = predict_leaf_disease(payload)
+    crop_filter = request.form.get("crop_filter", "").strip() or request.args.get("crop_filter", "").strip()
+    result = predict_leaf_disease(payload, crop_filter=crop_filter)
     if "error" in result:
         return jsonify(result), 422
         
@@ -54,6 +55,7 @@ def api_predict():
 def api_esp32_capture():
     data = request.get_json() or {}
     host = data.get("host", "").strip()
+    crop_filter = data.get("crop_filter", "").strip()
     
     if not host:
         return jsonify({"error": "ESP32 IP address is required."}), 400
@@ -72,7 +74,7 @@ def api_esp32_capture():
     except (URLError, OSError, TimeoutError) as exc:
         return jsonify({"error": f"Could not capture image from ESP32-CAM: {str(exc)}"}), 502
 
-    result = predict_leaf_disease(payload)
+    result = predict_leaf_disease(payload, crop_filter=crop_filter)
     if "error" in result:
         return jsonify(result), 422
         
@@ -121,7 +123,8 @@ def api_sample_predict(sample_id):
     with open(full_path, "rb") as f:
         payload = f.read()
         
-    result = predict_leaf_disease(payload)
+    crop_filter = request.form.get("crop_filter", "").strip() or (request.get_json(silent=True) or {}).get("crop_filter", "").strip() or request.args.get("crop_filter", "").strip()
+    result = predict_leaf_disease(payload, crop_filter=crop_filter)
     if "error" in result:
         return jsonify(result), 422
         

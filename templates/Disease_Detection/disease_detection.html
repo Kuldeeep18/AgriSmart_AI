@@ -127,6 +127,34 @@
                 </div>
                 {% endif %}
 
+                <!-- Differential Crop Focus Pills -->
+                <div class="mb-3 p-3 bg-light rounded-4 border">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label small fw-bold text-dark mb-0">
+                            <i class="fa fa-filter text-success me-1"></i> Target Crop Focus:
+                        </label>
+                        <span id="activeCropBadge" class="badge bg-success-subtle text-success small px-2 py-1 rounded-pill">
+                            <i class="fa fa-globe me-1"></i>Auto-Detect Active
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-1" id="cropPillsContainer">
+                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 crop-pill active" data-crop="all">🌐 Auto-Detect</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="apple">🍎 Apple</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="tomato">🍅 Tomato</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="potato">🥔 Potato</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="corn">🌽 Corn</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="grape">🍇 Grape</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="pepper">🌶️ Pepper</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 crop-pill" data-crop="citrus">🍊 Citrus</button>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-2">
+                        <small class="text-muted" id="cropFocusHelpText">Differential diagnosis spans 14 crops. Select a crop to condition diagnosis on that species.</small>
+                        <button type="button" class="btn btn-link btn-sm text-decoration-none text-muted p-0 small d-none" id="btnResetCropPills" onclick="setCropFilter('all')">
+                            <i class="fa fa-times-circle me-1"></i>Reset
+                        </button>
+                    </div>
+                </div>
+
                 <div class="tab-content pt-2" id="scanTabContent">
                     <!-- 1. FILE UPLOAD -->
                     <div class="tab-pane fade show active" id="panel-upload" role="tabpanel">
@@ -191,12 +219,27 @@
                 <!-- DIAGNOSIS RESULTS BOX -->
                 <div id="diagnosisContainer" class="mt-4 pt-3 border-top d-none">
                     <h5 class="fw-bold text-dark mb-3"><i class="fa fa-notes-medical text-danger me-2"></i>Diagnostic Results</h5>
+
+                    <!-- Smart Cross-Crop Disambiguation Recommendation Banner -->
+                    <div id="cropDisambiguationBanner" class="card border-0 bg-primary-subtle rounded-4 p-3 mb-3 d-none">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="d-flex align-items-start">
+                                <i class="fa fa-lightbulb text-primary fs-4 me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="fw-bold text-dark mb-1"><i class="fa fa-microchip text-primary me-1"></i>Cross-Crop Visual Similarity Detected</h6>
+                                    <p class="small text-muted mb-0" id="disambiguationText"></p>
+                                </div>
+                            </div>
+                            <div id="disambiguationActionBox"></div>
+                        </div>
+                    </div>
                     
                     <div class="card bg-light border-0 rounded-4 p-3 mb-3" id="diseaseResultCard">
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
                             <h4 class="fw-bold text-success mb-0" id="diseaseLabel">Leaf Disease</h4>
-                            <div>
+                            <div class="d-flex align-items-center flex-wrap gap-1">
                                 <span class="badge bg-success fs-6 px-3 py-2 rounded-pill" id="diseaseConfidence">95% Confident</span>
+                                <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill d-none" id="cropConditionedBadge"><i class="fa fa-tag me-1"></i><span id="cropConditionedText">Conditioned: Apple</span></span>
                                 <span class="badge bg-info text-dark fs-6 px-3 py-2 rounded-pill ms-1 d-none" id="ttaBadge"><i class="fa fa-bolt me-1"></i>TTA Multi-View</span>
                             </div>
                         </div>
@@ -324,6 +367,8 @@
 <script>
 let mediaStream = null;
 let latestDiagnosisData = null;
+let currentCropFilter = 'all';
+let lastUploadedPayload = null;
 let currentUploadFile = null;
 
 function displaySelectedFile(file) {
@@ -333,6 +378,7 @@ function displaySelectedFile(file) {
         return;
     }
     currentUploadFile = file;
+    lastUploadedPayload = { type: 'file', data: file, filename: file.name };
     const reader = new FileReader();
     reader.onload = function(e) {
         const preview = document.getElementById('uploadPreview');
@@ -347,6 +393,115 @@ function previewUploadImage(event) {
     if (file) displaySelectedFile(file);
 }
 
+function setCropFilter(cropKey, autoDiagnose = true) {
+    currentCropFilter = (cropKey || 'all').toLowerCase();
+    
+    // Update pill buttons visual state
+    document.querySelectorAll('#cropPillsContainer .crop-pill').forEach(btn => {
+        if (btn.getAttribute('data-crop') === currentCropFilter) {
+            btn.classList.add('btn-success', 'active');
+            btn.classList.remove('btn-outline-secondary');
+        } else {
+            btn.classList.remove('btn-success', 'active');
+            btn.classList.add('btn-outline-secondary');
+        }
+    });
+
+    const badge = document.getElementById('activeCropBadge');
+    const resetBtn = document.getElementById('btnResetCropPills');
+    if (currentCropFilter === 'all') {
+        badge.className = 'badge bg-success-subtle text-success small px-2 py-1 rounded-pill';
+        badge.innerHTML = '<i class="fa fa-globe me-1"></i>Auto-Detect Active';
+        if (resetBtn) resetBtn.classList.add('d-none');
+    } else {
+        const cropDisplay = currentCropFilter.charAt(0).toUpperCase() + currentCropFilter.slice(1);
+        badge.className = 'badge bg-primary-subtle text-primary small px-2 py-1 rounded-pill';
+        badge.innerHTML = `<i class="fa fa-filter me-1"></i>Focus: ${cropDisplay}`;
+        if (resetBtn) resetBtn.classList.remove('d-none');
+    }
+
+    // Re-evaluate current leaf automatically if already uploaded/captured
+    if (autoDiagnose && lastUploadedPayload) {
+        executeDiagnosis(lastUploadedPayload);
+    }
+}
+
+// Hook up crop focus pills
+document.querySelectorAll('#cropPillsContainer .crop-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+        setCropFilter(btn.getAttribute('data-crop'), true);
+    });
+});
+
+// Farm selection sync
+const farmSelect = document.getElementById('userFarmSelect');
+if (farmSelect) {
+    farmSelect.addEventListener('change', () => {
+        if (!farmSelect.value) {
+            setCropFilter('all', true);
+            return;
+        }
+        const opt = farmSelect.options[farmSelect.selectedIndex];
+        const farmCrop = (opt.getAttribute('data-crop') || '').toLowerCase();
+        let targetCrop = 'all';
+        if (farmCrop.includes('apple')) targetCrop = 'apple';
+        else if (farmCrop.includes('tomato')) targetCrop = 'tomato';
+        else if (farmCrop.includes('potato')) targetCrop = 'potato';
+        else if (farmCrop.includes('corn') || farmCrop.includes('maize')) targetCrop = 'corn';
+        else if (farmCrop.includes('grape')) targetCrop = 'grape';
+        else if (farmCrop.includes('pepper')) targetCrop = 'pepper';
+        else if (farmCrop.includes('orange') || farmCrop.includes('citrus')) targetCrop = 'citrus';
+        setCropFilter(targetCrop, true);
+    });
+}
+
+async function executeDiagnosis(payloadObj) {
+    const btnUpload = document.getElementById('btnAnalyzeUpload');
+    if (btnUpload) {
+        btnUpload.disabled = true;
+        btnUpload.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Analyzing...';
+    }
+
+    try {
+        let res, data;
+        if (payloadObj.type === 'file' || payloadObj.type === 'blob') {
+            const formData = new FormData();
+            formData.append('file', payloadObj.data, payloadObj.filename || 'leaf.jpg');
+            if (currentCropFilter && currentCropFilter !== 'all') {
+                formData.append('crop_filter', currentCropFilter);
+            }
+            res = await fetch('/api/disease/predict', {
+                method: 'POST',
+                body: formData
+            });
+            data = await res.json();
+        } else if (payloadObj.type === 'esp32') {
+            res = await fetch('/api/disease/esp32', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    host: payloadObj.host,
+                    crop_filter: currentCropFilter !== 'all' ? currentCropFilter : ''
+                })
+            });
+            data = await res.json();
+        }
+
+        if (data && data.error) {
+            alert(data.error);
+        } else if (data) {
+            renderDiseaseResult(data);
+        }
+    } catch (err) {
+        alert('Diagnosis failed: ' + err.message);
+    } finally {
+        if (btnUpload) {
+            btnUpload.disabled = false;
+            btnUpload.innerHTML = '<i class="fa fa-microscope me-1"></i> Analyze Foliage';
+        }
+    }
+}
+
 // Render Disease Result
 function renderDiseaseResult(data) {
     latestDiagnosisData = data;
@@ -359,6 +514,16 @@ function renderDiseaseResult(data) {
     confBadge.textContent = `${confPct}% Confidence`;
     confBadge.className = confPct > 70 ? 'badge bg-success fs-6 px-3 py-2 rounded-pill' : 'badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill';
 
+    // Conditioned Crop Filter Badge
+    const condBadge = document.getElementById('cropConditionedBadge');
+    const condText = document.getElementById('cropConditionedText');
+    if (data.crop_filter_applied) {
+        condText.textContent = `Conditioned: ${data.crop_filter_applied}`;
+        condBadge.classList.remove('d-none');
+    } else {
+        condBadge.classList.add('d-none');
+    }
+
     // TTA Multi-View Badge
     const ttaBadge = document.getElementById('ttaBadge');
     if (data.is_tta) {
@@ -368,6 +533,25 @@ function renderDiseaseResult(data) {
     }
 
     document.getElementById('modelNoticeText').textContent = data.model_notice || '';
+
+    // Smart Cross-Crop Disambiguation Recommendation Banner
+    const disambigBanner = document.getElementById('cropDisambiguationBanner');
+    const disambigText = document.getElementById('disambiguationText');
+    const disambigActionBox = document.getElementById('disambiguationActionBox');
+
+    if (data.crop_refinements && data.crop_refinements.length > 0) {
+        const ref = data.crop_refinements[0];
+        const matchPct = Math.round(ref.conditioned_confidence * 100);
+        disambigText.innerHTML = `Lesion symptoms also closely match <b>${ref.disease_name}</b> on <b>${ref.display_name}</b> foliage (${matchPct}% match). If this leaf is from a ${ref.display_name} tree, refine focus:`;
+        disambigActionBox.innerHTML = `
+            <button type="button" class="btn btn-primary action-btn-pill shadow-sm py-1 px-3" onclick="setCropFilter('${ref.crop_key}', true)">
+                <i class="fa fa-redo-alt me-1"></i> Diagnose for ${ref.display_name} (${matchPct}%)
+            </button>
+        `;
+        disambigBanner.classList.remove('d-none');
+    } else {
+        disambigBanner.classList.add('d-none');
+    }
 
     // Grad-CAM Visual Heatmap
     const camBox = document.getElementById('gradCamBox');
@@ -494,30 +678,8 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
         return;
     }
 
-    const btn = document.getElementById('btnAnalyzeUpload');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Analyzing...';
-
-    const formData = new FormData();
-    formData.append('file', fileToUpload);
-
-    try {
-        const res = await fetch('/api/disease/predict', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await res.json();
-        if (data.error) {
-            alert(data.error);
-        } else {
-            renderDiseaseResult(data);
-        }
-    } catch (err) {
-        alert('Analysis request failed: ' + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa fa-microscope me-1"></i> Analyze Foliage';
-    }
+    lastUploadedPayload = { type: 'file', data: fileToUpload, filename: fileToUpload.name };
+    executeDiagnosis(lastUploadedPayload);
 });
 
 // 2. Camera Controls
@@ -563,29 +725,9 @@ btnCapture.addEventListener('click', () => {
     canvas.height = video.videoHeight;
     canvas.getContext('2d').drawImage(video, 0, 0);
     
-    canvas.toBlob(async (blob) => {
-        const formData = new FormData();
-        formData.append('file', blob, 'camera_leaf.jpg');
-        btnCapture.disabled = true;
-        btnCapture.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Analyzing...';
-
-        try {
-            const res = await fetch('/api/disease/predict', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            if (data.error) {
-                alert(data.error);
-            } else {
-                renderDiseaseResult(data);
-            }
-        } catch (err) {
-            alert('Camera diagnosis failed: ' + err.message);
-        } finally {
-            btnCapture.disabled = false;
-            btnCapture.innerHTML = '<i class="fa fa-camera-retro me-1"></i> Capture & Diagnose';
-        }
+    canvas.toBlob((blob) => {
+        lastUploadedPayload = { type: 'blob', data: blob, filename: 'camera_leaf.jpg' };
+        executeDiagnosis(lastUploadedPayload);
     }, 'image/jpeg', 0.92);
 });
 
@@ -593,28 +735,8 @@ btnCapture.addEventListener('click', () => {
 document.getElementById('esp32Form').addEventListener('submit', async function(e) {
     e.preventDefault();
     const host = document.getElementById('esp32Host').value.trim();
-    const btn = document.getElementById('btnEsp32Capture');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Capturing from ESP32...';
-
-    try {
-        const res = await fetch('/api/disease/esp32', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ host })
-        });
-        const data = await res.json();
-        if (data.error) {
-            alert(data.error);
-        } else {
-            renderDiseaseResult(data);
-        }
-    } catch (err) {
-        alert('ESP32 capture failed: ' + err.message);
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa fa-satellite-dish me-1"></i> Capture & Diagnose from Device';
-    }
+    lastUploadedPayload = { type: 'esp32', host: host };
+    executeDiagnosis(lastUploadedPayload);
 });
 
 // 4. Advisory Form Submission
