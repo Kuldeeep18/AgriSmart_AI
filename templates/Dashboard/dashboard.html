@@ -20,10 +20,8 @@
                     class="text-emerald-600 font-bold tracking-widest uppercase text-[10px] sm:text-xs mb-1.5 flex items-center gap-1.5">
                     <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Operations Center
                 </p>
-                <h1
-                    class="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 tracking-tighter leading-none mb-3">
-                    Good Day, <span class="text-emerald-700">{{ session.full_name.split(' ')[0] if session.full_name
-                        else 'Farmer' }}</span>!
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+                    Good Day, {{ session.full_name.split(' ')[0] if session.full_name else 'Farmer' }}!
                 </h1>
                 <p class="text-gray-500 text-sm md:text-base font-medium max-w-lg">
                     Here is your daily intelligence overview and field diagnostic tools.
@@ -167,24 +165,20 @@
 
         <!-- Today's Observation -->
         <div
-            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 md:p-8 flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:col-span-2 h-full">
-            <div class="flex-shrink-0">
-                <div
-                    class="w-16 h-16 bg-gray-50 text-gray-700 rounded-2xl flex items-center justify-center border border-gray-200">
-                    <i data-lucide="calendar-check" class="w-8 h-8"></i>
-                </div>
+            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 flex flex-col h-full">
+            <div
+                class="w-12 h-12 bg-gray-50 text-gray-700 rounded-xl flex items-center justify-center mb-5 border border-gray-200">
+                <i data-lucide="calendar-check" class="w-6 h-6"></i>
             </div>
-            <div class="flex-grow">
-                <h4 class="text-xl font-bold text-gray-900 mb-2">Today's Field Observation</h4>
-                <p class="text-gray-500 text-sm leading-relaxed mb-4 max-w-lg">
-                    Log crop condition, pest sightings, and growth stages for today's field visit to track the
-                    historical health of your active farm.
-                </p>
-                <a href="{{ url_for('crop_tracking.crop_tracking') }}"
-                    class="inline-flex justify-center items-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-sm px-6 py-3 rounded-xl transition-colors">
-                    Add Daily Entry
-                </a>
-            </div>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">Today's Field Observation</h4>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-grow">
+                Log crop condition, pest sightings, and growth stages to track the historical health of your active
+                farm.
+            </p>
+            <a href="{{ url_for('crop_tracking.crop_tracking') }}"
+                class="w-full inline-flex justify-center items-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                Add Daily Entry
+            </a>
         </div>
 
     </div>

@@ -69,72 +69,71 @@ BioGrow — Farmer Community
             <div class="space-y-6" id="topicList">
                 {% for topic in topics %}
                 <article
-                    class="topic-card bg-white border border-gray-100 rounded-[2rem] p-6 sm:p-8 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex gap-4">
+                    class="topic-card bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-shadow relative">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center gap-3">
                             <div
-                                class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg border border-emerald-200 flex-shrink-0">
+                                class="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-700 font-bold text-sm border border-gray-200 flex-shrink-0">
                                 {{ topic.user.full_name[:2]|upper }}
                             </div>
                             <div>
-                                <div class="font-bold text-gray-900 text-lg">
+                                <div class="font-bold text-gray-900 text-sm">
                                     {{ topic.user.full_name }}
                                 </div>
-                                <div class="text-xs font-semibold text-gray-500">
-                                    {{ topic.created_at.strftime("%d %b %Y • %I:%M %p") }}
+                                <div class="text-xs font-medium text-gray-500">
+                                    {{ topic.created_at.strftime("%b %d, %Y") }}
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex flex-col items-end gap-2">
+                        <div class="flex items-center gap-2">
                             {% if topic.is_pinned %}
                             <span
-                                class="px-3 py-1 bg-amber-100 text-amber-800 text-[10px] font-black uppercase tracking-wider rounded-full flex items-center gap-1 shadow-sm">
+                                class="text-[10px] font-black uppercase tracking-wider text-amber-500 flex items-center gap-1 bg-amber-50 px-2 py-1 rounded-md border border-amber-100">
                                 <i data-lucide="pin" class="w-3 h-3"></i> Pinned
                             </span>
-                            {% endif %}
-
-                            {% if session["user_id"] == topic.user_id %}
-                            <form method="POST" action="{{ url_for('community.pin_topic', topic_id=topic.topic_id) }}">
-                                <button type="submit"
-                                    class="text-xs font-bold px-3 py-1.5 rounded-full transition-colors {% if topic.is_pinned %} bg-gray-100 text-gray-600 hover:bg-gray-200 {% else %} border border-amber-200 text-amber-600 hover:bg-amber-50 {% endif %}"
-                                    {% if not topic.is_pinned and current_user.points < 100 %} disabled
-                                    title="You need at least 100 points to pin this topic" {% endif %} {% if not
-                                    topic.is_pinned %}
-                                    onclick="return confirm('Pinning this topic will cost 100 points. You will have {{ current_user.points - 100 }} points left. Continue?')"
-                                    {% endif %}>
-                                    {% if topic.is_pinned %}
-                                    Undo Pin
-                                    {% else %}
-                                    Pin to Top (100 pts)
-                                    {% endif %}
-                                </button>
-                            </form>
                             {% endif %}
                         </div>
                     </div>
 
                     <h3
-                        class="topic-title font-display font-black text-2xl text-gray-900 mb-3 hover:text-emerald-600 transition-colors">
+                        class="topic-title text-xl font-bold text-gray-900 mb-2 hover:text-emerald-600 transition-colors">
                         <a href="{{ url_for('community.view_topic', topic_id=topic.topic_id) }}">
                             {{ topic.title }}
                         </a>
                     </h3>
 
-                    <p class="text-gray-600 font-medium mb-4 line-clamp-2 leading-relaxed">
+                    <p class="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">
                         {{ topic.description }}
                     </p>
 
-                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-50">
-                        {% if topic.category %}
-                        <span
-                            class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-lg border border-gray-200">
-                            {{ topic.category }}
-                        </span>
-                        {% endif %}
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="flex items-center gap-3">
+                            {% if topic.category %}
+                            <span
+                                class="px-2.5 py-1 bg-gray-50 text-gray-600 text-xs font-bold rounded-lg border border-gray-200">
+                                {{ topic.category }}
+                            </span>
+                            {% endif %}
+
+                            {% if session["user_id"] == topic.user_id %}
+                            <form method="POST" action="{{ url_for('community.pin_topic', topic_id=topic.topic_id) }}"
+                                class="inline">
+                                <button type="submit"
+                                    class="text-xs font-semibold hover:underline {% if topic.is_pinned %} text-gray-400 hover:text-gray-600 {% else %} text-gray-400 hover:text-emerald-700 {% endif %}"
+                                    {% if not topic.is_pinned and current_user.points < 100 %} disabled
+                                    title="Need 100 points to pin" {% endif %} {% if not topic.is_pinned %}
+                                    onclick="return confirm('Pinning this topic costs 100 points. Continue?')" {% endif
+                                    %}>
+                                    {% if topic.is_pinned %} Unpin {% else %} Pin to top {% endif %}
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+
                         <a href="{{ url_for('community.view_topic', topic_id=topic.topic_id) }}"
-                            class="text-sm font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
-                            Join Discussion <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 flex items-center gap-1">
+                            Reply <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
                     </div>
                 </article>
