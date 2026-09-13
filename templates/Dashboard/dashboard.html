@@ -11,180 +11,153 @@
 {% block content %}
 
 <!-- Header & Weather Widget -->
-<header class="bg-white border-b border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative overflow-hidden">
-    <!-- Decorative subtle mesh -->
-    <div
-        class="absolute right-0 top-0 w-96 h-96 bg-primaryLight rounded-full blur-[80px] -z-10 translate-x-1/2 -translate-y-1/3">
-    </div>
-    <div
-        class="absolute left-0 bottom-0 w-64 h-64 bg-teal-50 rounded-full blur-[60px] -z-10 -translate-x-1/2 translate-y-1/2">
-    </div>
-
+<header class="bg-white border-b border-gray-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8 lg:py-10">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <input type="hidden" id="city" value="{{session.location}}">
             <div class="relative z-10">
-                <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight mb-2">
-                    Welcome back, {{ session.full_name }}! 👋
+                <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">
+                    Welcome back, {{ session.full_name }}
                 </h1>
-                <p class="text-gray-500 font-medium text-lg">Here is your daily overview and field diagnostic tools.</p>
+                <p class="text-gray-500 text-sm md:text-base">Here is your daily overview and field diagnostic tools.
+                </p>
             </div>
 
-            <!-- Weather Card Glassmorphism -->
+            <!-- Clean Weather Card -->
             <div
-                class="bg-gradient-to-br from-primary to-teal-600 rounded-3xl p-5 shadow-lg shadow-emerald-600/20 text-white min-w-[260px] relative overflow-hidden border border-emerald-400 group hover:shadow-xl hover:-translate-y-0.5 transition-all">
-                <!-- Glowing element behind clouds -->
-                <div
-                    class="absolute right-0 top-0 w-28 h-28 bg-white/20 rounded-full blur-xl -translate-y-1/2 translate-x-1/4 group-hover:bg-white/30 transition-colors">
+                class="bg-gray-50 rounded-2xl p-5 border border-gray-200 min-w-[260px] flex items-center justify-between gap-6 shadow-sm hover:shadow-md transition-shadow">
+                <div>
+                    {% if weather %}
+                    <div class="flex items-center gap-2 mb-1">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
+                        <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">{{ user.location
+                            }}</span>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <h2 class="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tighter">{{ weather.temp
+                            }}°</h2>
+                        <p class="text-gray-600 text-sm font-medium pb-1 capitalize">{{ weather.description }}</p>
+                    </div>
+                    {% else %}
+                    <h2 class="text-3xl font-extrabold tracking-tighter text-gray-900">--</h2>
+                    <p class="text-gray-500 text-xs font-semibold uppercase tracking-wider mt-1">
+                        Weather unavailable
+                    </p>
+                    {% endif %}
                 </div>
-                <div class="flex items-center justify-between relative z-10 gap-4">
-                    <div>
-                        {% if weather %}
-                        <h2 class="text-4xl font-extrabold tracking-tighter mb-0 drop-shadow-sm">{{ weather.temp }}°C
-                        </h2>
-                        <p
-                            class="text-emerald-50 text-xs font-semibold uppercase tracking-wider mt-1 opacity-90 drop-shadow-sm">
-                            {{ weather.description }} | {{ user.location }}
-                        </p>
-                        {% else %}
-                        <h2 class="text-4xl font-extrabold tracking-tighter mb-0 drop-shadow-sm">--</h2>
-                        <p class="text-emerald-50 text-xs font-semibold uppercase tracking-wider mt-1 opacity-90">
-                            Weather unavailable</p>
-                        {% endif %}
-                    </div>
-                    <div class="bg-white/10 p-3 rounded-2xl backdrop-blur-sm border border-white/10">
-                        <i data-lucide="cloud-sun" class="w-8 h-8 text-white drop-shadow-sm"></i>
-                    </div>
+                <div class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                    <i data-lucide="cloud-sun" class="w-8 h-8 text-gray-700"></i>
                 </div>
             </div>
         </div>
     </div>
 </header>
 
+
 <!-- Main Dashboard Grid -->
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-    <div class="flex items-center justify-between mb-8 px-2">
-        <h3 class="text-2xl font-bold text-gray-900 tracking-tight">Field Diagnostics Center</h3>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="flex items-center justify-between mb-6 px-1">
+        <h3 class="text-xl font-bold text-gray-900 tracking-tight">Active Tools</h3>
         <span
-            class="inline-flex items-center text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 shadow-sm">
-            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 mr-1.5 text-emerald-500"></i> Tools Active
+            class="inline-flex items-center text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-full border border-gray-200">
+            <i data-lucide="activity" class="w-3.5 h-3.5 mr-1.5 text-gray-400"></i> System Operational
         </span>
     </div>
 
-    <!-- Apple-style Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    <!-- Clean Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         <!-- Leaf Doctor -->
         <div
-            class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 hover:border-emerald-200 transition-all duration-300 p-8 flex flex-col h-full relative overflow-hidden">
+            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 flex flex-col h-full">
             <div
-                class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[100px] -z-0 opacity-50 group-hover:scale-110 transition-transform">
+                class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-5 border border-emerald-100">
+                <i data-lucide="scan-line" class="w-6 h-6"></i>
             </div>
-            <div class="relative z-10 flex-grow flex flex-col">
-                <div
-                    class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-emerald-50 border border-emerald-100 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:-translate-y-1 transition-transform">
-                    <i data-lucide="scan-line" class="w-7 h-7 text-emerald-600"></i>
-                </div>
-                <h4 class="text-xl font-bold text-gray-900 mb-2">Leaf Doctor Scanner</h4>
-                <p class="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
-                    Diagnose crop leaf diseases via file upload, camera, or ESP32-CAM with FieldGuard precision AI.
-                </p>
-                <a href="{{ url_for('disease_detection.disease_detection') }}"
-                    class="mt-auto w-full inline-flex justify-center items-center gap-2 bg-emerald-50 hover:bg-primary text-emerald-700 hover:text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
-                    Scan Foliage <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">Leaf Doctor Diagnostics</h4>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-grow">
+                Scan foliage to instantly diagnose crop leaf diseases with FieldGuard precision AI logic via upload or
+                ESP32-CAM.
+            </p>
+            <a href="{{ url_for('disease_detection.disease_detection') }}"
+                class="w-full inline-flex justify-center items-center gap-2 bg-gray-900 hover:bg-emerald-600 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                Open Scanner
+            </a>
         </div>
 
         <!-- Crop Advisory -->
         <div
-            class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-primary/5 hover:border-emerald-200 transition-all duration-300 p-8 flex flex-col h-full relative overflow-hidden">
+            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 flex flex-col h-full">
             <div
-                class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-bl-[100px] -z-0 opacity-50 group-hover:scale-110 transition-transform">
+                class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-5 border border-teal-100">
+                <i data-lucide="sprout" class="w-6 h-6"></i>
             </div>
-            <div class="relative z-10 flex-grow flex flex-col">
-                <div
-                    class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-teal-50 border border-teal-100 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:-translate-y-1 transition-transform">
-                    <i data-lucide="sprout" class="w-7 h-7 text-emerald-600"></i>
-                </div>
-                <h4 class="text-xl font-bold text-gray-900 mb-2">Crop Advisory</h4>
-                <p class="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
-                    AI-powered recommendations based on physical soil parameters (N, P, K) and localized climate data.
-                </p>
-                <a href="{{ url_for('crop_prediction.crop_prediction') }}"
-                    class="mt-auto w-full inline-flex justify-center items-center gap-2 bg-emerald-50 hover:bg-primary text-emerald-700 hover:text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
-                    Open Tool <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">Smart Crop Advisory</h4>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-grow">
+                ML-powered recommendations utilizing physical soil parameters (N, P, K, pH) and localized climate
+                trends.
+            </p>
+            <a href="{{ url_for('crop_prediction.crop_prediction') }}"
+                class="w-full inline-flex justify-center items-center gap-2 bg-gray-900 hover:bg-emerald-600 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                Get Recommendation
+            </a>
         </div>
 
         <!-- Nitrogen (LCC) -->
         <div
-            class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-amber-900/5 hover:border-amber-200 transition-all duration-300 p-8 flex flex-col h-full relative overflow-hidden">
+            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 flex flex-col h-full">
             <div
-                class="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-bl-[100px] -z-0 opacity-50 group-hover:scale-110 transition-transform">
+                class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center mb-5 border border-amber-100">
+                <i data-lucide="leaf" class="w-6 h-6"></i>
             </div>
-            <div class="relative z-10 flex-grow flex flex-col">
-                <div
-                    class="w-14 h-14 bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-100 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:-translate-y-1 transition-transform">
-                    <i data-lucide="leaf" class="w-7 h-7 text-amber-600"></i>
-                </div>
-                <h4 class="text-xl font-bold text-gray-900 mb-2">Nitrogen (LCC)</h4>
-                <p class="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
-                    Compare leaf color against standardized scale to determine the exact urea application required.
-                </p>
-                <a href="{{ url_for('crop_tracking.crop_tracking') }}"
-                    class="mt-auto w-full inline-flex justify-center items-center gap-2 bg-amber-50 hover:bg-amber-600 text-amber-700 hover:text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
-                    Log Score <i data-lucide="plus" class="w-4 h-4"></i>
-                </a>
-            </div>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">Nitrogen (LCC)</h4>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-grow">
+                Determine exact urea application requirements by testing leaf color variations against the standardized
+                scale.
+            </p>
+            <a href="{{ url_for('crop_tracking.crop_tracking') }}"
+                class="w-full inline-flex justify-center items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                Log Score
+            </a>
         </div>
 
         <!-- Soil Moisture -->
         <div
-            class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-blue-900/5 hover:border-blue-200 transition-all duration-300 p-8 flex flex-col h-full relative overflow-hidden">
+            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 flex flex-col h-full">
             <div
-                class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-[100px] -z-0 opacity-50 group-hover:scale-110 transition-transform">
+                class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 border border-blue-100">
+                <i data-lucide="droplets" class="w-6 h-6"></i>
             </div>
-            <div class="relative z-10 flex-grow flex flex-col">
-                <div
-                    class="w-14 h-14 bg-gradient-to-br from-blue-100 to-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:-translate-y-1 transition-transform">
-                    <i data-lucide="droplets" class="w-7 h-7 text-blue-600"></i>
-                </div>
-                <h4 class="text-xl font-bold text-gray-900 mb-2">Soil Moisture</h4>
-                <p class="text-gray-500 text-sm leading-relaxed mb-8 flex-grow">
-                    Record "hand-feel" moisture tests over time to prevent critical water stress or root rot.
-                </p>
-                <a href="{{url_for('crop_tracking.crop_tracking')}}"
-                    class="mt-auto w-full inline-flex justify-center items-center gap-2 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
-                    Add Log <i data-lucide="plus" class="w-4 h-4"></i>
-                </a>
-            </div>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">Soil Moisture</h4>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-grow">
+                Track manual "hand-feel" moisture tests historically to prevent critical water stress or root rot in
+                crops.
+            </p>
+            <a href="{{url_for('crop_tracking.crop_tracking')}}"
+                class="w-full inline-flex justify-center items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 text-gray-700 font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                Add Log
+            </a>
         </div>
 
         <!-- Today's Observation -->
         <div
-            class="group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-orange-900/5 hover:border-orange-200 transition-all duration-300 p-8 flex flex-col h-full relative overflow-hidden lg:col-span-2">
-            <div
-                class="absolute top-0 right-0 w-64 h-64 bg-orange-50 rounded-bl-[200px] -z-0 opacity-50 group-hover:scale-110 transition-transform">
+            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 md:p-8 flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:col-span-2 h-full">
+            <div class="flex-shrink-0">
+                <div
+                    class="w-16 h-16 bg-gray-50 text-gray-700 rounded-2xl flex items-center justify-center border border-gray-200">
+                    <i data-lucide="calendar-check" class="w-8 h-8"></i>
+                </div>
             </div>
-            <div class="relative z-10 flex-grow flex flex-col md:flex-row md:items-center gap-8">
-                <div class="flex-shrink-0">
-                    <div
-                        class="w-20 h-20 bg-gradient-to-br from-orange-100 to-orange-50 border border-orange-100 rounded-3xl flex items-center justify-center shadow-sm group-hover:-translate-y-1 transition-transform">
-                        <i data-lucide="calendar-check" class="w-10 h-10 text-orange-600"></i>
-                    </div>
-                </div>
-                <div class="flex-grow">
-                    <h4 class="text-2xl font-bold text-gray-900 mb-2">Today's Field Observation</h4>
-                    <p class="text-gray-500 text-sm leading-relaxed mb-6">
-                        Log crop condition, pests, and growth stages for today's field visit to track historical health.
-                    </p>
-                    <a href="{{ url_for('crop_tracking.crop_tracking') }}"
-                        class="inline-flex justify-center items-center gap-2 bg-orange-50 hover:bg-orange-600 text-orange-700 hover:text-white font-bold text-sm px-8 py-3.5 rounded-xl transition-colors">
-                        Add Daily Entry <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
-                    </a>
-                </div>
+            <div class="flex-grow">
+                <h4 class="text-xl font-bold text-gray-900 mb-2">Today's Field Observation</h4>
+                <p class="text-gray-500 text-sm leading-relaxed mb-4 max-w-lg">
+                    Log crop condition, pest sightings, and growth stages for today's field visit to track the
+                    historical health of your active farm.
+                </p>
+                <a href="{{ url_for('crop_tracking.crop_tracking') }}"
+                    class="inline-flex justify-center items-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                    Add Daily Entry
+                </a>
             </div>
         </div>
 

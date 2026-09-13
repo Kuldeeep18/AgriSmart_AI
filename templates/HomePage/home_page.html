@@ -11,9 +11,6 @@
             class="px-5 py-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">About</a></li>
     <li><a href="#services"
             class="px-5 py-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">Services</a></li>
-    <li><a href="#phytodata-hub"
-            class="px-5 py-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">PhytoData hub</a>
-    </li>
 </ul>
 {% endblock %}
 
@@ -22,7 +19,6 @@
 <a href="#hero" class="px-4 py-3 text-sm font-bold text-gray-700">Home</a>
 <a href="#about" class="px-4 py-3 text-sm font-bold text-gray-700">About</a>
 <a href="#services" class="px-4 py-3 text-sm font-bold text-gray-700">Services</a>
-<a href="#phytodata-hub" class="px-4 py-3 text-sm font-bold text-gray-700">PhytoData hub</a>
 {% endblock %}
 
 {% block content %}
@@ -74,43 +70,125 @@
     </div>
 </section>
 
-<!-- About Section -->
+<!-- About Section (6 Cards Info Grid) -->
 <section id="about" class="py-24 bg-white relative scroll-mt-24">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col lg:flex-row items-center gap-16">
-            <div class="lg:w-1/2">
-                <div class="relative">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-tr from-emerald-100 to-teal-50 rounded-3xl transform -rotate-6">
-                    </div>
-                    <div class="relative bg-white p-1 rounded-3xl border border-gray-100 shadow-xl">
-                        <img src="{{ url_for('static', filename='images/Logo_Trim.png') }}"
-                            class="w-full h-auto rounded-3xl object-contain bg-gray-50 p-16" alt="AgriSmart AI">
-                    </div>
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="text-emerald-600 font-bold tracking-wide uppercase text-sm mb-4 block">About AgriSmart</span>
+            <h2 class="font-display text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
+                Revolutionizing Crop Health Detection
+            </h2>
+            <p class="text-lg text-gray-500 font-medium">
+                We bridge the gap between cutting-edge artificial intelligence and on-ground farming realities. Discover
+                the six pillars that make AgriSmart the ultimate agricultural companion.
+            </p>
+        </div>
+
+        <!-- 6 Bento Cards Grid (Dark sleek aesthetic as requested) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Card 1 -->
+            <div
+                class="bg-[#111827] rounded-[2rem] p-8 border border-[#1f2937] hover:border-emerald-500/50 shadow-2xl relative overflow-hidden group transition-all duration-300">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity">
                 </div>
-            </div>
-            <div class="lg:w-1/2">
-                <span class="text-emerald-600 font-bold tracking-wide uppercase text-sm mb-4 block">About
-                    AgriSmart</span>
-                <h2 class="font-display text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
-                    Revolutionizing Crop Health Detection</h2>
-                <p class="text-lg text-gray-600 mb-6 leading-relaxed">
-                    We bridge the gap between cutting-edge artificial intelligence and on-ground farming realities. By
-                    leveraging extremely accurate convolutional neural networks, we enable farmers to detect diseases
-                    early, track vital soil metrics, and make data-driven decisions that dramatically increase crop
-                    yield.
+                <div
+                    class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="target" class="w-7 h-7 text-emerald-400"></i>
+                </div>
+                <h4 class="font-display text-xl font-black text-white mb-3">99% Accuracy</h4>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Powered by proprietary convolutional neural networks trained on millions of data points to ensure
+                    precise, laboratory-grade disease detection in milliseconds.
                 </p>
-                <div class="grid grid-cols-2 gap-6 mt-8">
-                    <div>
-                        <h4 class="font-display text-3xl font-black text-primary mb-2">99%</h4>
-                        <p class="text-sm text-gray-500 font-medium">Detection Accuracy</p>
-                    </div>
-                    <div>
-                        <h4 class="font-display text-3xl font-black text-primary mb-2">24/7</h4>
-                        <p class="text-sm text-gray-500 font-medium">Expert AI Availability</p>
-                    </div>
-                </div>
             </div>
+
+            <!-- Card 2 -->
+            <div
+                class="bg-[#111827] rounded-[2rem] p-8 border border-[#1f2937] hover:border-emerald-500/50 shadow-2xl relative overflow-hidden group transition-all duration-300">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="clock" class="w-7 h-7 text-emerald-400"></i>
+                </div>
+                <h4 class="font-display text-xl font-black text-white mb-3">24/7 Availability</h4>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Crop diseases don't sleep, and neither do we. Access instant diagnostic reports and advisory
+                    insights at any time, anywhere, directly from your mobile device.
+                </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div
+                class="bg-[#111827] rounded-[2rem] p-8 border border-[#1f2937] hover:border-emerald-500/50 shadow-2xl relative overflow-hidden group transition-all duration-300">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="bar-chart-2" class="w-7 h-7 text-emerald-400"></i>
+                </div>
+                <h4 class="font-display text-xl font-black text-white mb-3">Data-Driven Yields</h4>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Analyze soil metrics (N, P, K, pH) combined with historical data to generate predictive models that
+                    maximize your fertilizer efficiency and harvest quality.
+                </p>
+            </div>
+
+            <!-- Card 4 -->
+            <div
+                class="bg-[#111827] rounded-[2rem] p-8 border border-[#1f2937] hover:border-emerald-500/50 shadow-2xl relative overflow-hidden group transition-all duration-300">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="users" class="w-7 h-7 text-emerald-400"></i>
+                </div>
+                <h4 class="font-display text-xl font-black text-white mb-3">Gamified Community</h4>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Join a thriving ecosystem of agronomists, advisors, and experts. Share research, solve local
+                    challenges, and earn Reputation Points for contributing to collective knowledge.
+                </p>
+            </div>
+
+            <!-- Card 5 -->
+            <div
+                class="bg-[#111827] rounded-[2rem] p-8 border border-[#1f2937] hover:border-emerald-500/50 shadow-2xl relative overflow-hidden group transition-all duration-300">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="cloud-lightning" class="w-7 h-7 text-emerald-400"></i>
+                </div>
+                <h4 class="font-display text-xl font-black text-white mb-3">Real-Time Alerts</h4>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Stay ahead of devastating climatic events with automated, intelligent email alerts that notify you
+                    of incoming extreme weather based on highly-localized tracking.
+                </p>
+            </div>
+
+            <!-- Card 6 -->
+            <div
+                class="bg-[#111827] rounded-[2rem] p-8 border border-[#1f2937] hover:border-emerald-500/50 shadow-2xl relative overflow-hidden group transition-all duration-300">
+                <div
+                    class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full -z-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                </div>
+                <div
+                    class="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i data-lucide="cpu" class="w-7 h-7 text-emerald-400"></i>
+                </div>
+                <h4 class="font-display text-xl font-black text-white mb-3">IoT Integration</h4>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                    Seamlessly connect and stream data from ESP32-CAM and in-field hardware sensors for continuous
+                    tracking without manual logging overhead.
+                </p>
+            </div>
+
         </div>
     </div>
 </section>
@@ -119,7 +197,6 @@
 <section id="services"
     class="py-24 bg-gray-50 relative border-t border-gray-100 rounded-[3rem] -mt-6 overflow-hidden scroll-mt-24 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
         <div class="text-center max-w-3xl mx-auto mb-16">
             <span class="text-emerald-600 font-bold tracking-wide uppercase text-sm mb-4 block">Our Capabilities</span>
             <h2 class="font-display text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-4">Enterprise
@@ -131,10 +208,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             <!-- Feature 1: Smart Advisory -->
-            <a href="{{ url_for('crop_prediction.crop_prediction') }}"
+            <a href="{{ url_for('login') }}"
                 class="group bg-white p-8 rounded-3xl border border-gray-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 relative flex flex-col cursor-pointer block">
                 <div
-                    class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">
                     <i data-lucide="sprout" class="w-7 h-7 text-emerald-600"></i>
                 </div>
                 <h4 class="font-display text-xl font-bold text-gray-900 mb-3 tracking-wide">Smart Crop Advisory</h4>
@@ -151,16 +228,16 @@
                 </div>
                 <div
                     class="inline-flex items-center gap-1.5 text-emerald-600 font-bold text-sm group-hover:text-emerald-700 mt-auto">
-                    Try Tool <i data-lucide="arrow-right"
+                    Login to Access <i data-lucide="arrow-right"
                         class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
             <!-- Feature 2: Leaf Doctor -->
-            <a href="{{ url_for('disease_detection.disease_detection') }}"
+            <a href="{{ url_for('login') }}"
                 class="group bg-white p-8 rounded-3xl border border-gray-100 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-900/5 transition-all duration-300 relative flex flex-col cursor-pointer block">
                 <div
-                    class="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    class="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">
                     <i data-lucide="scan-line" class="w-7 h-7 text-teal-600"></i>
                 </div>
                 <h4 class="font-display text-xl font-bold text-gray-900 mb-3 tracking-wide">Leaf Doctor Diagnostics</h4>
@@ -177,16 +254,16 @@
                 </div>
                 <div
                     class="inline-flex items-center gap-1.5 text-teal-600 font-bold text-sm group-hover:text-teal-700 mt-auto">
-                    Scan Foliage <i data-lucide="arrow-right"
+                    Login to Access <i data-lucide="arrow-right"
                         class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
 
             <!-- Feature 3: Weather Intelligence -->
-            <a href="{{ url_for('dashboard') }}"
+            <a href="{{ url_for('login') }}"
                 class="group bg-white p-8 rounded-3xl border border-gray-100 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-900/5 transition-all duration-300 relative flex flex-col cursor-pointer block">
                 <div
-                    class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-105 transition-transform">
                     <i data-lucide="cloud-lightning" class="w-7 h-7 text-orange-600"></i>
                 </div>
                 <h4 class="font-display text-xl font-bold text-gray-900 mb-3 tracking-wide">Weather Intelligence</h4>
@@ -203,7 +280,7 @@
                 </div>
                 <div
                     class="inline-flex items-center gap-1.5 text-orange-600 font-bold text-sm group-hover:text-orange-700 mt-auto">
-                    View Weather <i data-lucide="arrow-right"
+                    Login to Access <i data-lucide="arrow-right"
                         class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </div>
             </a>
@@ -211,43 +288,4 @@
         </div>
     </div>
 </section>
-
-<!-- PhytoData Hub -->
-<section id="phytodata-hub" class="py-24 bg-white relative scroll-mt-24">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-gray-900 rounded-[3rem] p-10 md:p-16 relative overflow-hidden shadow-2xl">
-            <!-- decorative -->
-            <div
-                class="absolute right-0 top-0 w-96 h-96 bg-primary/20 rounded-full blur-[80px] -z-0 translate-x-1/2 -translate-y-1/2">
-            </div>
-
-            <div class="relative z-10 flex flex-col lg:flex-row items-center gap-10">
-                <div class="lg:w-2/3">
-                    <h2 class="font-display text-3xl md:text-5xl font-black text-white mb-4">The PhytoData Hub</h2>
-                    <p class="text-lg text-gray-400 mb-8 max-w-2xl leading-relaxed">
-                        Access our gamified community. Share research, log daily field conditions, and discuss findings
-                        with top agricultural experts via our Stack Overflow-style network.
-                    </p>
-                    <div class="flex flex-wrap gap-4">
-                        <a href="{{ url_for('community.farmer_community') }}"
-                            class="px-8 py-3 bg-white text-gray-900 font-display font-bold rounded-full hover:bg-gray-100 transition-colors">
-                            Enter the Hub
-                        </a>
-                        <a href="{{ url_for('crop_tracking.crop_tracking') }}"
-                            class="px-8 py-3 bg-transparent border border-gray-600 text-white font-display font-bold rounded-full hover:bg-gray-800 transition-colors">
-                            Track Daily Data
-                        </a>
-                    </div>
-                </div>
-                <div class="lg:w-1/3 flex justify-center">
-                    <div
-                        class="w-32 h-32 md:w-48 md:h-48 border-[10px] border-emerald-500/30 rounded-full flex items-center justify-center relative shadow-[0_0_80px_rgba(16,185,129,0.3)]">
-                        <i data-lucide="network" class="w-16 h-16 md:w-24 md:h-24 text-emerald-400"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 {% endblock %}
