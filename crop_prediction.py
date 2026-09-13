@@ -74,6 +74,86 @@ def predict_crop():
         return jsonify({"error": f"Prediction computation failed: {str(e)}"}), 500
 
 
+def generate_pdf_from_report(rendered_html, report, data_for_pdf):
+    # Tier 1: Try xhtml2pdf (pure Python, fast, no external binary required)
+    try:
+        from xhtml2pdf import pisa
+        import io
+        pdf_io = io.BytesIO()
+        status = pisa.CreatePDF(rendered_html, dest=pdf_io)
+        if not status.err and len(pdf_io.getvalue()) > 0:
+            return pdf_io.getvalue()
+    except Exception as e:
+        print(f"[BioGrow PDF] xhtml2pdf generation notice: {e}")
+
+    # Tier 2: Try pdfkit if wkhtmltopdf is configured on system
+    try:
+        import pdfkit
+        wkhtml_path = os.getenv("PATH_WKHTMLTOPDF")
+        config = pdfkit.configuration(wkhtmltopdf=wkhtml_path) if wkhtml_path else None
+        pdf = pdfkit.from_string(rendered_html, False, configuration=config)
+        if pdf:
+            return pdf
+    except Exception as e:
+        print(f"[BioGrow PDF] pdfkit generation notice: {e}")
+
+    # Tier 3: Pure ReportLab failsafe
+    try:
+        from reportlab.lib.pagesizes import letter
+        from reportlab.pdfgen import canvas
+        import io
+        buffer = io.BytesIO()
+        c = canvas.Canvas(buffer, pagesize=letter)
+        c.setTitle(f"BioGrow Report - {report.crop_name.capitalize()}")
+        c.setFont("Helvetica-Bold", 18)
+        c.setFillColorRGB(0.098, 0.529, 0.329)
+        c.drawString(50, 750, "BioGrow Crop Recommendation Report")
+        c.setFont("Helvetica", 10)
+        c.setFillColorRGB(0.4, 0.4, 0.4)
+        c.drawString(50, 730, f"Generated: {data_for_pdf['report_date']} | Report ID: #{report.report_id}")
+        c.setStrokeColorRGB(0.098, 0.529, 0.329)
+        c.setLineWidth(2)
+        c.line(50, 720, 550, 720)
+        
+        c.setFont("Helvetica-Bold", 13)
+        c.setFillColorRGB(0.1, 0.1, 0.1)
+        c.drawString(50, 690, f"Top Recommended Crop: {report.crop_name.capitalize()}")
+        c.setFont("Helvetica", 11)
+        c.drawString(60, 670, f"Confidence Match: {report.match_percentage}%")
+        c.drawString(60, 650, f"Estimated Harvest: {report.harvest_duration} days")
+        c.drawString(60, 630, f"Seasonal Water Requirement: {report.water_req} mm")
+        
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, 595, "Soil & Climate Profile:")
+        c.setFont("Helvetica", 10)
+        y = 575
+        for k, v in [
+            ("Soil Type", report.soil_type),
+            ("Nitrogen (N)", f"{report.n} kg/ha"),
+            ("Phosphorus (P)", f"{report.p} kg/ha"),
+            ("Potassium (K)", f"{report.k} kg/ha"),
+            ("pH Level", str(report.ph)),
+            ("Temperature", f"{report.temperature} °C"),
+            ("Humidity", f"{report.humidity} %"),
+        ]:
+            c.drawString(60, y, f"• {k}: {v}")
+            y -= 18
+
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(50, y - 10, "Fertilizer & Action Plan:")
+        y -= 30
+        for rec in data_for_pdf["result"]["recommendations"]:
+            c.setFont("Helvetica", 10)
+            c.drawString(60, y, f"• {rec}")
+            y -= 18
+
+        c.save()
+        return buffer.getvalue()
+    except Exception as e:
+        print(f"[BioGrow PDF] ReportLab fallback notice: {e}")
+        return None
+
+
 @crop_prediction_bp.route('/download_report/<int:report_id>', methods=['GET'])
 def download_report(report_id):
     report = PredictionReport.query.get_or_404(report_id)
@@ -106,19 +186,15 @@ def download_report(report_id):
 
     rendered_html = render_template('pdf_report.html', **data_for_pdf)
     
-    # Try generating PDF with pdfkit if available
-    try:
-        import pdfkit
-        wkhtml_path = os.getenv("PATH_WKHTMLTOPDF")
-        config = pdfkit.configuration(wkhtmltopdf=wkhtml_path) if wkhtml_path else None
-        pdf = pdfkit.from_string(rendered_html, False, configuration=config)
-        response = make_response(pdf)
+    pdf_bytes = generate_pdf_from_report(rendered_html, report, data_for_pdf)
+    if pdf_bytes:
+        response = make_response(pdf_bytes)
         response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = f'attachment; filename=BioGrow_{report.crop_name.capitalize()}_Report.pdf'
+        safe_crop = "".join([c for c in report.crop_name if c.isalnum() or c in (' ', '_', '-')]).strip()
+        response.headers['Content-Disposition'] = f'attachment; filename="BioGrow_{safe_crop.capitalize()}_Report.pdf"'
         return response
-    except Exception:
-        # Graceful printable HTML response
-        return rendered_html
+    
+    return rendered_html
 
 @crop_prediction_bp.route("/api/create_farm_from_prediction", methods=["POST"])
 def create_farm_from_prediction():

@@ -80,13 +80,9 @@
         .fert-list li {
             background-color: #d2e3d0;
             border: 1px solid #dee2e6;
-            padding: 15px;
+            padding: 12px 15px;
             margin-bottom: 10px;
             border-radius: 8px;
-        }
-        .fert-list li::before {
-            content: "\25BA";
-            margin-right: 10px;
         }
 
         /* Footer */
@@ -112,20 +108,22 @@
         <p class="text-muted mb-0 fw-bold">TOP RECOMMENDATION</p>
         <h1 class="crop-title fw-bold">{{ result.crop_name }}</h1>
         
-        <div style="display: flex; justify-content: center; gap: 30px; margin-top: 20px;">
-            <div>
-                <span class="text-muted d-block">Confidence Score</span>
-                <strong class="text-success fs-5">{{ result.match_percentage }}% Match</strong>
-            </div>
-            <div>
-                <span class="text-muted d-block">Harvest Time</span>
-                <strong class="text-dark fs-5">{{ result.harvest_duration }} days</strong>
-            </div>
-            <div>
-                <span class="text-muted d-block">Seasonal Water Needs</span>
-                <strong class="text-dark fs-5">{{ result.water_requirement }} mm</strong>
-            </div>
-        </div>
+        <table style="width: 100%; margin-top: 15px; border: none; border-collapse: collapse;">
+            <tr>
+                <td style="width: 33.3%; text-align: center; border: none; padding: 10px;">
+                    <span class="text-muted d-block">Confidence Score</span>
+                    <strong class="text-success fs-5">{{ result.match_percentage }}% Match</strong>
+                </td>
+                <td style="width: 33.3%; text-align: center; border: none; padding: 10px;">
+                    <span class="text-muted d-block">Harvest Time</span>
+                    <strong class="text-dark fs-5">{{ result.harvest_duration }} days</strong>
+                </td>
+                <td style="width: 33.3%; text-align: center; border: none; padding: 10px;">
+                    <span class="text-muted d-block">Seasonal Water Needs</span>
+                    <strong class="text-dark fs-5">{{ result.water_requirement }} mm</strong>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <h3 class="section-title">Soil & Climate Profile Analyzed</h3>
@@ -165,7 +163,7 @@
     <h3 class="section-title mt-4">Fertilizer & Action Plan</h3>
     <ul class="fert-list">
         {% for rec in result.recommendations %}
-        <li>{{ rec }}</li>
+        <li>&#9658; {{ rec }}</li>
         {% else %}
         <li>No specific fertilizer recommendations generated. Soil conditions appear optimal.</li>
         {% endfor %}

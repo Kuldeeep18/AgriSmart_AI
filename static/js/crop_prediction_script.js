@@ -184,14 +184,45 @@ async function predictCrop(event) {
     lucide.createIcons();
 }
 
-downloadPdfBtn.addEventListener("click", function(event) {
+downloadPdfBtn.addEventListener("click", async function(event) {
     const reportId = downloadPdfBtn.getAttribute("data-report-id");
     if (!reportId) return alert("Please generate a prediction first!");
     
-    // Triggers a browser navigation to the download route. 
-    // Because the server responds with a 'Content-Disposition: attachment' header, 
-    // the browser aborts the redirect and instead downloads the PDF file natively.
-    window.location.href = `/download_report/${reportId}`;
+    const originalHtml = downloadPdfBtn.innerHTML;
+    downloadPdfBtn.disabled = true;
+    downloadPdfBtn.innerHTML = `<i class="fa fa-spinner fa-spin me-1"></i> Downloading PDF...`;
+
+    try {
+        const response = await fetch(`/download_report/${reportId}`);
+        if (!response.ok) throw new Error("Failed to download PDF report.");
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+
+        let filename = `BioGrow_Crop_Report_${reportId}.pdf`;
+        const disposition = response.headers.get("Content-Disposition");
+        if (disposition && disposition.indexOf("filename=") !== -1) {
+            const matches = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            if (matches && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (err) {
+        alert("Error downloading report: " + err.message);
+    } finally {
+        downloadPdfBtn.disabled = false;
+        downloadPdfBtn.innerHTML = originalHtml;
+        if (window.lucide) lucide.createIcons();
+    }
 });
 
 const addFarmBtn = document.getElementById("addFarmFromPredBtn");
