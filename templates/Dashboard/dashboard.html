@@ -16,27 +16,35 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <input type="hidden" id="city" value="{{session.location}}">
             <div class="relative z-10">
-                <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">
-                    Welcome back, {{ session.full_name }}
+                <p
+                    class="text-emerald-600 font-bold tracking-widest uppercase text-[10px] sm:text-xs mb-1.5 flex items-center gap-1.5">
+                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Operations Center
+                </p>
+                <h1
+                    class="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 tracking-tighter leading-none mb-3">
+                    Good Day, <span class="text-emerald-700">{{ session.full_name.split(' ')[0] if session.full_name
+                        else 'Farmer' }}</span>!
                 </h1>
-                <p class="text-gray-500 text-sm md:text-base">Here is your daily overview and field diagnostic tools.
+                <p class="text-gray-500 text-sm md:text-base font-medium max-w-lg">
+                    Here is your daily intelligence overview and field diagnostic tools.
                 </p>
             </div>
 
             <!-- Clean Weather Card -->
             <div
-                class="bg-gray-50 rounded-2xl p-5 border border-gray-200 min-w-[260px] flex items-center justify-between gap-6 shadow-sm hover:shadow-md transition-shadow">
+                class="bg-white rounded-[2rem] p-5 md:p-6 border border-gray-100 min-w-[280px] flex gap-4 md:gap-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] items-center justify-between">
                 <div>
                     {% if weather %}
-                    <div class="flex items-center gap-2 mb-1">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-gray-400"></i>
-                        <span class="text-gray-500 text-xs font-bold uppercase tracking-wider">{{ user.location
+                    <div class="flex items-center gap-2 mb-1.5 opacity-80">
+                        <i data-lucide="map-pin" class="w-3.5 h-3.5 text-gray-400"></i>
+                        <span class="text-gray-500 text-[10px] font-bold uppercase tracking-widest">{{ user.location
                             }}</span>
                     </div>
-                    <div class="flex items-end gap-2">
-                        <h2 class="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tighter">{{ weather.temp
-                            }}°</h2>
-                        <p class="text-gray-600 text-sm font-medium pb-1 capitalize">{{ weather.description }}</p>
+                    <div class="flex items-end gap-2 text-gray-900">
+                        <h2 class="font-display text-4xl lg:text-5xl font-black tracking-tighter leading-none">{{
+                            weather.temp }}°</h2>
+                        <p class="text-gray-600 text-sm font-medium pb-1.5 capitalize whitespace-nowrap">{{
+                            weather.description }}</p>
                     </div>
                     {% else %}
                     <h2 class="text-3xl font-extrabold tracking-tighter text-gray-900">--</h2>
@@ -67,21 +75,39 @@
     <!-- Clean Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        <!-- Leaf Doctor -->
+        <!-- Leaf Diagnostic -->
         <div
             class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-300 transition-all p-6 flex flex-col h-full">
             <div
                 class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-5 border border-emerald-100">
                 <i data-lucide="scan-line" class="w-6 h-6"></i>
             </div>
-            <h4 class="text-lg font-bold text-gray-900 mb-2">Leaf Doctor Diagnostics</h4>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">Leaf Diagnostic Scanner</h4>
             <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-grow">
                 Scan foliage to instantly diagnose crop leaf diseases with FieldGuard precision AI logic via upload or
-                ESP32-CAM.
+                EPS32 hardware.
             </p>
-            <a href="{{ url_for('disease_detection.disease_detection') }}"
+            <a href="{{ url_for('disease_detection.disease_detection') }}#leaf-diagnostic"
                 class="w-full inline-flex justify-center items-center gap-2 bg-gray-900 hover:bg-emerald-600 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
                 Open Scanner
+            </a>
+        </div>
+
+        <!-- Irrigation Advisory -->
+        <div
+            class="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all p-6 flex flex-col h-full">
+            <div
+                class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 border border-blue-100">
+                <i data-lucide="droplets" class="w-6 h-6"></i>
+            </div>
+            <h4 class="text-lg font-bold text-gray-900 mb-2">Irrigation Advisory</h4>
+            <p class="text-gray-500 text-sm leading-relaxed mb-6 flex-grow">
+                Input live environmental parameters to generate a highly auditable, localized logic-based irrigation
+                decision.
+            </p>
+            <a href="{{ url_for('disease_detection.disease_detection') }}#irrigation-advisory"
+                class="w-full inline-flex justify-center items-center gap-2 bg-gray-900 hover:bg-blue-600 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                Open Calculator
             </a>
         </div>
 

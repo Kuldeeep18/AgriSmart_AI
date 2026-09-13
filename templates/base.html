@@ -95,9 +95,13 @@
                             class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50">
                             <i data-lucide="sprout" class="w-4 h-4 text-teal-600"></i> Smart Advisory
                         </a>
-                        <a href="{{ url_for('disease_detection.disease_detection') }}"
+                        <a href="{{ url_for('disease_detection.disease_detection') }}#leaf-diagnostic"
+                            class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50">
+                            <i data-lucide="scan-line" class="w-4 h-4 text-emerald-600"></i> Leaf Diagnostic
+                        </a>
+                        <a href="{{ url_for('disease_detection.disease_detection') }}#irrigation-advisory"
                             class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                            <i data-lucide="scan-line" class="w-4 h-4 text-emerald-600"></i> Leaf Doctor
+                            <i data-lucide="droplets" class="w-4 h-4 text-blue-600"></i> Irrigation Advisory
                         </a>
                     </div>
                 </li>
@@ -170,11 +174,16 @@
                     class="w-4 h-4 {% if request.endpoint=='crop_prediction.crop_prediction' %}text-primary{% else %}text-teal-500{% endif %}"></i>
                 Smart Advisory
             </a>
-            <a href="{{ url_for('disease_detection.disease_detection') }}"
-                class="px-4 py-3 text-sm font-semibold rounded-xl pl-6 flex items-center gap-2 mb-1 {% if request.endpoint=='disease_detection.disease_detection' %}bg-primaryLight text-primary{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+            <a href="{{ url_for('disease_detection.disease_detection') }}#leaf-diagnostic"
+                class="px-4 py-3 text-sm font-semibold rounded-xl pl-6 flex items-center gap-2 {% if request.endpoint=='disease_detection.disease_detection' %}bg-primaryLight text-primary{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
                 <i data-lucide="scan-line"
                     class="w-4 h-4 {% if request.endpoint=='disease_detection.disease_detection' %}text-primary{% else %}text-emerald-500{% endif %}"></i>
-                Leaf Doctor
+                Leaf Diagnostic
+            </a>
+            <a href="{{ url_for('disease_detection.disease_detection') }}#irrigation-advisory"
+                class="px-4 py-3 text-sm font-semibold rounded-xl pl-6 flex items-center gap-2 mb-1 {% if request.endpoint=='disease_detection.disease_detection' %}bg-primaryLight text-primary{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                <i data-lucide="droplets" class="w-4 h-4 text-blue-500"></i>
+                Irrigation Advisory
             </a>
 
             <div class="h-px bg-gray-100 my-1 mx-2"></div>

@@ -7,23 +7,27 @@ BioGrow — Farmer Community
 {% block content %}
 
 <!-- Header -->
-<header
-    class="bg-gradient-to-r from-emerald-600 to-teal-600 py-12 lg:py-16 mt-0 w-full rounded-b-[3rem] relative shadow-lg">
-    <div
-        class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8L3N2Zz4=')] opacity-20 rounded-b-[3rem]">
-    </div>
-    <div class="max-w-7xl mx-auto px-4 relative z-10">
-        <div class="flex flex-col lg:flex-row justify-between items-center gap-6">
-            <div class="text-center lg:text-left text-white">
-                <h1 class="font-display text-4xl lg:text-5xl font-black mb-3 drop-shadow-md">Farmer Community</h1>
-                <p class="text-emerald-100 font-medium text-lg">Ask questions &bull; Share knowledge &bull; Earn rewards
+<header class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full py-8 lg:py-10">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="relative z-10">
+                <p
+                    class="text-emerald-600 font-bold tracking-widest uppercase text-[10px] sm:text-xs mb-1.5 flex items-center gap-1.5">
+                    <i data-lucide="users" class="w-3.5 h-3.5"></i> Collaborative Network
+                </p>
+                <h1
+                    class="font-display text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 tracking-tighter leading-none mb-3">
+                    Farmer Community
+                </h1>
+                <p class="text-gray-500 text-sm md:text-base font-medium max-w-lg">
+                    Ask questions, share knowledge, and earn reputation points by helping others.
                 </p>
             </div>
             <div>
                 <button
-                    class="bg-white text-emerald-700 hover:bg-emerald-50 px-8 py-3.5 rounded-full font-bold text-lg shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:-translate-y-1 transition-all flex items-center gap-2"
+                    class="bg-gray-900 text-white hover:bg-emerald-600 shadow-sm hover:shadow-md px-6 py-3.5 rounded-[1rem] font-bold text-sm transition-all flex items-center justify-center gap-2"
                     onclick="document.getElementById('askModal').classList.remove('hidden'); document.getElementById('askModal').classList.add('flex');">
-                    Ask Question <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    Post Question <i data-lucide="plus" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>

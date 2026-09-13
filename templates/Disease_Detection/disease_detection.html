@@ -455,6 +455,18 @@
 <script>
     lucide.createIcons();
 
+    // Check hash for specific tab routing
+    document.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash;
+        if (hash === '#irrigation-advisory') {
+            const btn = document.querySelector('.tool-tab-btn[data-target="#irrigation-advisor-view"]');
+            if (btn) btn.click();
+        } else if (hash === '#leaf-diagnostic') {
+            const btn = document.querySelector('.tool-tab-btn[data-target="#leaf-doctor-view"]');
+            if (btn) btn.click();
+        }
+    });
+
     // Main Tool Tabs UI
     document.querySelectorAll('.tool-tab-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
