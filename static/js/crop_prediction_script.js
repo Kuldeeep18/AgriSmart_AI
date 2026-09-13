@@ -84,7 +84,7 @@ temp.addEventListener("change", event => {
 
 function validateData(field, errorField, featureName, lowerLimit, upperLimit) {
     if (field.value<lowerLimit || field.value>upperLimit) {
-        errorField.innerHTML = `<p class='small text-danger'>${featureName} value should be between ${lowerLimit} and ${upperLimit}!</p>`;
+        errorField.innerHTML = `<p class='text-xs font-bold text-red-500 mt-1'>${featureName} value should be between ${lowerLimit} and ${upperLimit}!</p>`;
     }
     else {
         errorField.innerHTML = ``;
@@ -95,14 +95,14 @@ async function predictCrop(event) {
     event.preventDefault();
 
     if (soil.value=="==Choose Soil Type==") {
-        soilError.innerHTML = `<p class='small text-danger'>Soil type is necessary!</p>`;
+        soilError.innerHTML = `<p class='text-xs font-bold text-red-500 mt-1'>Soil type is necessary!</p>`;
         return;
     }
 
     // ----- SHOW LOADING -----
-    document.getElementById("result-before").classList.add("d-none");
-    document.getElementById("result-after").classList.add("d-none");
-    document.getElementById("result-loading").classList.remove("d-none");
+    document.getElementById("result-before").classList.add("hidden");
+    document.getElementById("result-after").classList.add("hidden");
+    document.getElementById("result-loading").classList.remove("hidden");
 
     // Disable submit button
     const submitBtn = event.target.querySelector("button[type='submit']");
@@ -127,9 +127,9 @@ async function predictCrop(event) {
 
     const data = await response.json();
     if (!response.ok || data.error) {
-        document.getElementById("result-loading").classList.add("d-none");
-        document.getElementById("result-before").classList.remove("d-none");
-        document.getElementById("result-after").classList.add("d-none");
+        document.getElementById("result-loading").classList.add("hidden");
+        document.getElementById("result-before").classList.remove("hidden");
+        document.getElementById("result-after").classList.add("hidden");
         document.getElementById("errorMessage").innerText = data.error || "Unknown Error Occured";
 
         submitBtn.disabled = false;
@@ -147,36 +147,35 @@ async function predictCrop(event) {
         if (fertList) {
             fertList.innerHTML = ""; // Clear old recommendations
             
-            // Loop through the list that Python backend sent
             data.recommendations.forEach(rec => {
                 const li = document.createElement("li");
                 li.innerText = rec;
-                li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+                li.classList.add("flex", "justify-between", "items-center", "p-4", "border-b", "border-gray-100", "last:border-0", "text-sm", "font-medium", "text-gray-700");
                 
                 // We convert text to lowercase to safely check keywords
                 const lowerRec = rec.toLowerCase();
                 if (lowerRec.includes("optimal")) {
                     // Green for good news
-                    li.classList.add("bg-success-subtle");
-                    li.innerHTML += ' <span class="badge bg-success rounded-pill">✔ Good</span>';
+                    li.classList.add("bg-emerald-50/50");
+                    li.innerHTML += ' <span class="px-2.5 py-1 text-xs font-bold text-emerald-800 bg-emerald-200 rounded-full shadow-sm">✔ Good</span>';
                 } 
                 else if (lowerRec.includes("low")) {
                     // Red for "Action Required" (Low nutrients)
-                    li.classList.add("bg-danger-subtle");
-                    li.innerHTML += ' <span class="badge bg-danger rounded-pill">⚠ Low</span>';
+                    li.classList.add("bg-red-50");
+                    li.innerHTML += ' <span class="px-2.5 py-1 text-xs font-bold text-red-800 bg-red-200 rounded-full shadow-sm">⚠ Low</span>';
                 } 
                 else if (lowerRec.includes("high")) {
                     // Yellow for "Warning" (High nutrients)
-                    li.classList.add("bg-warning-subtle");
-                    li.innerHTML += ' <span class="badge bg-warning text-dark rounded-pill">! High</span>';
+                    li.classList.add("bg-amber-50");
+                    li.innerHTML += ' <span class="px-2.5 py-1 text-xs font-bold text-amber-900 bg-amber-300 rounded-full shadow-sm">! High</span>';
                 }
                 
                 fertList.appendChild(li);
             });
         }
     
-        document.getElementById("result-loading").classList.add("d-none");
-        document.getElementById("result-after").classList.remove("d-none");
+        document.getElementById("result-loading").classList.add("hidden");
+        document.getElementById("result-after").classList.remove("hidden");
 
         submitBtn.disabled = false;
         submitBtn.innerText = "🌾 Get Recommendation";
@@ -246,14 +245,14 @@ if (addFarmBtn) {
             });
             const data = await res.json();
             if (data.error) {
-                feedback.className = "small text-center text-danger fw-semibold mt-1";
+                feedback.className = "text-xs text-center text-red-500 font-bold mt-2";
                 feedback.textContent = data.error;
             } else {
-                feedback.className = "small text-center text-success fw-semibold mt-1";
-                feedback.innerHTML = `<i class="fa fa-check-circle me-1"></i> ${data.message} <a href="${data.redirect_url}" class="alert-link text-decoration-underline ms-1">View in Crop Tracking →</a>`;
+                feedback.className = "text-xs text-center text-emerald-600 font-bold mt-2";
+                feedback.innerHTML = `<i class="fa fa-check-circle me-1"></i> ${data.message} <a href="${data.redirect_url}" class="underline ms-1 hover:text-emerald-800 transition-colors">View in Crop Tracking →</a>`;
             }
         } catch (err) {
-            feedback.className = "small text-center text-danger fw-semibold mt-1";
+            feedback.className = "text-xs text-center text-red-500 font-bold mt-2";
             feedback.textContent = "Failed to add farm: " + err.message;
         } finally {
             addFarmBtn.disabled = false;
