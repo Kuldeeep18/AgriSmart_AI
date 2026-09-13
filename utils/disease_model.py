@@ -40,7 +40,7 @@ def get_active_predictor() -> tuple[ArtifactPredictor | None, str, str]:
             
     return None, "unconfigured", "No disease model artifact currently configured."
 
-def predict_leaf_disease(image_bytes: bytes) -> dict:
+def predict_leaf_disease(image_bytes: bytes, crop_filter: str | None = None) -> dict:
     try:
         image = Image.open(io.BytesIO(image_bytes))
         image.load()
@@ -51,14 +51,18 @@ def predict_leaf_disease(image_bytes: bytes) -> dict:
     
     gradcam_b64 = None
     is_tta = False
+    crop_filter_applied = None
+    crop_refinements = []
     if predictor and predictor.is_configured:
         try:
-            res: Prediction = predictor.predict_bytes(image_bytes)
+            res: Prediction = predictor.predict_bytes(image_bytes, crop_filter=crop_filter)
             label = res.label
             confidence = res.confidence
             alternatives = res.alternatives
             gradcam_b64 = getattr(res, "gradcam_b64", None)
             is_tta = getattr(res, "is_tta", False)
+            crop_filter_applied = getattr(res, "crop_filter_applied", None)
+            crop_refinements = getattr(res, "crop_refinements", []) or []
         except Exception as e:
             label = "Healthy Crop Leaf"
             confidence = 0.88
@@ -90,7 +94,9 @@ def predict_leaf_disease(image_bytes: bytes) -> dict:
             "quality_warnings": warnings,
             "alternatives": [],
             "gradcam_b64": None,
-            "is_tta": False
+            "is_tta": False,
+            "crop_filter_applied": crop_filter_applied,
+            "crop_refinements": []
         }
 
     return {
@@ -102,5 +108,7 @@ def predict_leaf_disease(image_bytes: bytes) -> dict:
         "quality_warnings": warnings,
         "alternatives": alternatives,
         "gradcam_b64": gradcam_b64,
-        "is_tta": is_tta
+        "is_tta": is_tta,
+        "crop_filter_applied": crop_filter_applied,
+        "crop_refinements": crop_refinements
     }
