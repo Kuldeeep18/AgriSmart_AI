@@ -60,7 +60,18 @@ def main() -> None:
     if overlap:
         raise SystemExit("Exact image duplicates occur across train and validation; fix the split before training.")
 
-    train_tf = v2.Compose([v2.Resize((256, 256)), v2.RandomResizedCrop((224, 224), scale=(0.65, 1.0)), v2.RandomHorizontalFlip(), v2.RandomRotation(25), v2.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.06), v2.RandomApply([v2.GaussianBlur(3)], p=0.15), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    train_tf = v2.Compose([
+        v2.Resize((256, 256)),
+        v2.RandomResizedCrop((224, 224), scale=(0.65, 1.0)),
+        v2.RandomHorizontalFlip(),
+        v2.RandomRotation(25),
+        v2.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.06),
+        v2.RandomApply([v2.GaussianBlur(3)], p=0.15),
+        v2.ToImage(),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        v2.RandomErasing(p=0.2, scale=(0.02, 0.2), value="random")
+    ])
     val_tf = v2.Compose([v2.Resize((224, 224)), v2.ToImage(), v2.ToDtype(torch.float32, scale=True), v2.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     train_ds, val_ds = datasets.ImageFolder(train_dir, transform=train_tf), datasets.ImageFolder(val_dir, transform=val_tf)
     if train_ds.classes != val_ds.classes:
@@ -100,13 +111,18 @@ def main() -> None:
 
     loss_fn = nn.CrossEntropyLoss(weight=weights.to(device), label_smoothing=0.05)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-6)
     scaler = torch.cuda.amp.GradScaler(enabled=(device == "cuda"))
+
+    for _ in range(1, start_epoch):
+        scheduler.step()
 
     if start_epoch > args.epochs:
         print(f"Already completed {len(history)} epochs (target: {args.epochs}). Nothing to train.", flush=True)
 
     for epoch in range(start_epoch, args.epochs + 1):
-        print(f"\nStarting epoch {epoch}/{args.epochs}...", flush=True)
+        cur_lr = optimizer.param_groups[0]['lr']
+        print(f"\nStarting epoch {epoch}/{args.epochs} (LR: {cur_lr:.6f})...", flush=True)
         model.train(); running = 0.0
         for batch_idx, (images, targets) in enumerate(train_loader, 1):
             optimizer.zero_grad(set_to_none=True)
@@ -136,6 +152,7 @@ def main() -> None:
             torch.save(model.cpu().state_dict(), output / "best_model.pt")
             model.to(device)
             print(f"New best model saved! (Macro-F1: {best_f1:.4f})", flush=True)
+        scheduler.step()
 
     config = vars(args) | {"created_at": datetime.now(timezone.utc).isoformat(), "classes": classes, "device": device, "best_validation_macro_f1": best_f1, "class_counts": {classes[i]: counts[i] for i in range(len(classes))}, "augmentation": "crop/flip/rotation/color/blur", "held_out_test_used": False}
     (output / "training_config.json").write_text(json.dumps(config, indent=2), encoding="utf-8")
