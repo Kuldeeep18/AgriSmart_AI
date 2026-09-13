@@ -30,11 +30,17 @@
         text-align: center;
         background-color: #f8fafc;
         cursor: pointer;
-        transition: border-color 0.2s;
+        transition: all 0.2s ease-in-out;
     }
     .drop-zone:hover {
         border-color: #10b981;
         background-color: #f0fdf4;
+    }
+    .drop-zone.drag-over {
+        border-color: #198754 !important;
+        background-color: #d1fae5 !important;
+        transform: scale(1.02);
+        box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.18);
     }
     .preview-img {
         max-height: 260px;
@@ -125,11 +131,11 @@
                     <!-- 1. FILE UPLOAD -->
                     <div class="tab-pane fade show active" id="panel-upload" role="tabpanel">
                         <form id="uploadForm">
-                            <div class="drop-zone" id="dropZone" onclick="document.getElementById('leafImageInput').click();">
+                            <div class="drop-zone" id="dropZone">
                                 <i class="fa fa-cloud-upload-alt text-success display-5 mb-2"></i>
                                 <h6 class="fw-bold mb-1">Click or drag & drop leaf image</h6>
                                 <p class="text-muted small mb-0">PNG, JPG, JPEG up to 8MB</p>
-                                <input type="file" id="leafImageInput" accept="image/*" class="d-none" onchange="previewUploadImage(event)">
+                                <input type="file" id="leafImageInput" accept="image/*" class="d-none">
                             </div>
                             <div id="uploadPreviewBox" class="text-center mt-3 d-none">
                                 <img id="uploadPreview" class="preview-img border shadow-sm mb-3">
@@ -318,18 +324,27 @@
 <script>
 let mediaStream = null;
 let latestDiagnosisData = null;
+let currentUploadFile = null;
+
+function displaySelectedFile(file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+        alert('Please select or drop a valid image file (PNG, JPG, JPEG).');
+        return;
+    }
+    currentUploadFile = file;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById('uploadPreview');
+        preview.src = e.target.result;
+        document.getElementById('uploadPreviewBox').classList.remove('d-none');
+    };
+    reader.readAsDataURL(file);
+}
 
 function previewUploadImage(event) {
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const preview = document.getElementById('uploadPreview');
-            preview.src = e.target.result;
-            document.getElementById('uploadPreviewBox').classList.remove('d-none');
-        }
-        reader.readAsDataURL(file);
-    }
+    const file = event.target.files && event.target.files[0];
+    if (file) displaySelectedFile(file);
 }
 
 // Render Disease Result
@@ -405,12 +420,77 @@ function renderDiseaseResult(data) {
     container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+// Drag and Drop Event Listeners for File Upload
+const dropZone = document.getElementById('dropZone');
+const leafInput = document.getElementById('leafImageInput');
+
+if (dropZone && leafInput) {
+    dropZone.addEventListener('click', (e) => {
+        if (e.target !== leafInput) {
+            leafInput.click();
+        }
+    });
+
+    leafInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            displaySelectedFile(e.target.files[0]);
+        }
+    });
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evtName => {
+        dropZone.addEventListener(evtName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(evtName => {
+        dropZone.addEventListener(evtName, () => {
+            dropZone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'dragend', 'drop'].forEach(evtName => {
+        dropZone.addEventListener(evtName, () => {
+            dropZone.classList.remove('drag-over');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length > 0) {
+            const file = dt.files[0];
+            try {
+                const container = new DataTransfer();
+                container.items.add(file);
+                leafInput.files = container.files;
+            } catch (err) {
+                // Fallback if browser restricts DataTransfer assignment
+            }
+            displaySelectedFile(file);
+        }
+    });
+
+    // Prevent default browser file drop behavior outside the dropzone
+    window.addEventListener('dragover', (e) => {
+        if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
+            e.preventDefault();
+        }
+    }, false);
+    window.addEventListener('drop', (e) => {
+        if (e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files')) {
+            e.preventDefault();
+        }
+    }, false);
+}
+
 // 1. Upload Form Submission
 document.getElementById('uploadForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const fileInput = document.getElementById('leafImageInput');
-    if (!fileInput.files || fileInput.files.length === 0) {
-        alert('Please select an image file first.');
+    const fileToUpload = (fileInput && fileInput.files && fileInput.files[0]) || currentUploadFile;
+    if (!fileToUpload) {
+        alert('Please select or drop an image file first.');
         return;
     }
 
@@ -419,7 +499,7 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
     btn.innerHTML = '<i class="fa fa-spinner fa-spin me-1"></i> Analyzing...';
 
     const formData = new FormData();
-    formData.append('file', fileInput.files[0]);
+    formData.append('file', fileToUpload);
 
     try {
         const res = await fetch('/api/disease/predict', {
