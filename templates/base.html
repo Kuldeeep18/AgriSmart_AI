@@ -81,20 +81,31 @@
                     <a href="{{ url_for('dashboard') }}"
                         class="px-4 py-2 text-sm font-medium rounded-full transition-colors {% if request.endpoint=='dashboard' %}bg-primaryLight text-primary shadow-sm font-bold{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-100/50{% endif %}">Dashboard</a>
                 </li>
-                <li>
-                    <a href="{{ url_for('crop_prediction.crop_prediction') }}"
-                        class="px-4 py-2 text-sm font-medium rounded-full transition-colors {% if request.endpoint=='crop_prediction.crop_prediction' %}bg-primaryLight text-primary shadow-sm font-bold{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-100/50{% endif %}">Crop
-                        Prediction</a>
+
+                <!-- Services Dropdown (Desktop) -->
+                <li class="relative group">
+                    <button
+                        class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-100/50">
+                        Services <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <!-- Dropdown Menu -->
+                    <div
+                        class="absolute left-0 mt-3 w-48 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden pt-1 pb-1">
+                        <a href="{{ url_for('crop_prediction.crop_prediction') }}"
+                            class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-50">
+                            <i data-lucide="sprout" class="w-4 h-4 text-teal-600"></i> Smart Advisory
+                        </a>
+                        <a href="{{ url_for('disease_detection.disease_detection') }}"
+                            class="block px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+                            <i data-lucide="scan-line" class="w-4 h-4 text-emerald-600"></i> Leaf Doctor
+                        </a>
+                    </div>
                 </li>
+
                 <li>
                     <a href="{{ url_for('crop_tracking.crop_tracking') }}"
-                        class="px-4 py-2 text-sm font-medium rounded-full transition-colors {% if request.endpoint=='crop_tracking.crop_tracking' %}bg-primaryLight text-primary shadow-sm font-bold{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-100/50{% endif %}">Crop
-                        Tracking</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('disease_detection.disease_detection') }}"
-                        class="px-4 py-2 text-sm font-medium rounded-full transition-colors {% if request.endpoint=='disease_detection.disease_detection' %}bg-primaryLight text-primary shadow-sm font-bold{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-100/50{% endif %}">🌿
-                        Leaf Doctor</a>
+                        class="px-4 py-2 text-sm font-medium rounded-full transition-colors {% if request.endpoint=='crop_tracking.crop_tracking' %}bg-primaryLight text-primary shadow-sm font-bold{% else %}text-gray-600 hover:text-gray-900 hover:bg-gray-100/50{% endif %}">Add
+                        Log</a>
                 </li>
                 <li>
                     <a href="{{ url_for('community.farmer_community') }}"
@@ -150,15 +161,27 @@
             {% block mobile_nav_links %}
             <a href="{{ url_for('dashboard') }}"
                 class="px-4 py-3 text-sm font-semibold rounded-xl {% if request.endpoint=='dashboard' %}bg-primaryLight text-primary{% else %}text-gray-700{% endif %}">Dashboard</a>
+
+            <div class="px-4 pt-3 pb-1 text-[11px] font-bold text-gray-400 uppercase tracking-widest text-left">Services
+            </div>
             <a href="{{ url_for('crop_prediction.crop_prediction') }}"
-                class="px-4 py-3 text-sm font-semibold rounded-xl {% if request.endpoint=='crop_prediction.crop_prediction' %}bg-primaryLight text-primary{% else %}text-gray-700{% endif %}">Crop
-                Prediction</a>
-            <a href="{{ url_for('crop_tracking.crop_tracking') }}"
-                class="px-4 py-3 text-sm font-semibold rounded-xl {% if request.endpoint=='crop_tracking.crop_tracking' %}bg-primaryLight text-primary{% else %}text-gray-700{% endif %}">Crop
-                Tracking</a>
+                class="px-4 py-3 text-sm font-semibold rounded-xl pl-6 flex items-center gap-2 {% if request.endpoint=='crop_prediction.crop_prediction' %}bg-primaryLight text-primary{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                <i data-lucide="sprout"
+                    class="w-4 h-4 {% if request.endpoint=='crop_prediction.crop_prediction' %}text-primary{% else %}text-teal-500{% endif %}"></i>
+                Smart Advisory
+            </a>
             <a href="{{ url_for('disease_detection.disease_detection') }}"
-                class="px-4 py-3 text-sm font-semibold rounded-xl {% if request.endpoint=='disease_detection.disease_detection' %}bg-primaryLight text-primary{% else %}text-gray-700{% endif %}">🌿
-                Leaf Doctor</a>
+                class="px-4 py-3 text-sm font-semibold rounded-xl pl-6 flex items-center gap-2 mb-1 {% if request.endpoint=='disease_detection.disease_detection' %}bg-primaryLight text-primary{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                <i data-lucide="scan-line"
+                    class="w-4 h-4 {% if request.endpoint=='disease_detection.disease_detection' %}text-primary{% else %}text-emerald-500{% endif %}"></i>
+                Leaf Doctor
+            </a>
+
+            <div class="h-px bg-gray-100 my-1 mx-2"></div>
+
+            <a href="{{ url_for('crop_tracking.crop_tracking') }}"
+                class="px-4 py-3 text-sm font-semibold rounded-xl {% if request.endpoint=='crop_tracking.crop_tracking' %}bg-primaryLight text-primary{% else %}text-gray-700{% endif %}">Add
+                Log</a>
             <a href="{{ url_for('community.farmer_community') }}"
                 class="px-4 py-3 text-sm font-semibold rounded-xl {% if request.endpoint=='community.farmer_community' %}bg-primaryLight text-primary{% else %}text-gray-700{% endif %}">Community</a>
             {% endblock %}
