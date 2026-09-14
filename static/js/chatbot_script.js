@@ -41,11 +41,11 @@ chatbotCloseBtn?.addEventListener('click', () => {
 // Append Message to UI 
 function appendMessage(text, type) { 
     const msgDiv = document.createElement('div'); 
-    msgDiv.className = `flex items-end gap-2 ${type === 'user' ? 'justify-end' : 'justify-start'}`;
+    msgDiv.className = `flex items-end gap-2 max-w-full min-w-0 ${type === 'user' ? 'justify-end' : 'justify-start'}`;
     
     if (type === 'user') {
         const bubble = document.createElement('div');
-        bubble.className = 'bg-primary text-white p-3 rounded-2xl rounded-br-none max-w-[85%] text-sm leading-relaxed shadow-sm';
+        bubble.className = 'chat-bubble-content bg-primary text-white p-3 rounded-2xl rounded-br-none max-w-[85%] text-sm leading-relaxed shadow-sm min-w-0 break-words';
         bubble.innerHTML = text;
         msgDiv.appendChild(bubble);
     } else {
@@ -54,7 +54,7 @@ function appendMessage(text, type) {
         iconDiv.innerHTML = '<i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-600"></i>';
         
         const bubble = document.createElement('div');
-        bubble.className = 'bg-white border border-gray-100 shadow-sm p-3 rounded-2xl rounded-bl-none max-w-[85%] text-sm text-gray-700 leading-relaxed';
+        bubble.className = 'chat-bubble-content bg-white border border-gray-100 shadow-sm p-3 rounded-2xl rounded-bl-none max-w-[85%] text-sm text-gray-700 leading-relaxed min-w-0 break-words';
         bubble.innerHTML = text;
         
         msgDiv.appendChild(iconDiv);
@@ -70,7 +70,7 @@ function appendMessage(text, type) {
 function showTypingIndicator() {
     const indicatorDiv = document.createElement('div');
     indicatorDiv.id = 'bot-typing-indicator';
-    indicatorDiv.className = 'flex items-end gap-2 justify-start';
+    indicatorDiv.className = 'flex items-end gap-2 justify-start max-w-full min-w-0';
     indicatorDiv.innerHTML = `
         <div class="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
             <i data-lucide="bot" class="w-3.5 h-3.5 text-emerald-600"></i>
