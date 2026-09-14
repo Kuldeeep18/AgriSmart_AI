@@ -17,7 +17,8 @@ tabRegister.addEventListener("click", () => {
     formLogin.classList.add("hidden");
     formRegister.classList.remove("hidden");
 
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 tabLogin.addEventListener("click", () => {
@@ -29,7 +30,8 @@ tabLogin.addEventListener("click", () => {
     formRegister.classList.add("hidden");
     formLogin.classList.remove("hidden");
 
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 

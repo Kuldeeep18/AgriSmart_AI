@@ -3,9 +3,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+db_url = os.getenv("DATABASE_URL")
+if db_url:
+    try:
+        import psycopg2
+    except ImportError:
+        db_url = db_url.replace("postgresql+psycopg2://", "postgresql+pg8000://")
+        if db_url.startswith("postgresql://"):
+            db_url = db_url.replace("postgresql://", "postgresql+pg8000://")
+
 class Config:
     # Database URL: uses PostgreSQL if configured, otherwise falls back to local SQLite database
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or "sqlite:///biogrow.db"
+    SQLALCHEMY_DATABASE_URI = db_url or "sqlite:///biogrow.db"
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

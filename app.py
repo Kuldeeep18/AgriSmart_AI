@@ -44,6 +44,20 @@ from utils.avtar import get_initials
 with app.app_context():
     db.create_all()
     try:
+        from sqlalchemy import text
+        with db.engine.connect() as conn:
+            if "sqlite" not in str(db.engine.url):
+                conn.execute(text("""
+                    ALTER TABLE crop_logs ADD COLUMN IF NOT EXISTS disease_label VARCHAR(100);
+                    ALTER TABLE crop_logs ADD COLUMN IF NOT EXISTS disease_confidence FLOAT;
+                    ALTER TABLE crop_logs ADD COLUMN IF NOT EXISTS disease_precautions_json TEXT;
+                    ALTER TABLE crop_logs ADD COLUMN IF NOT EXISTS disease_status VARCHAR(50) DEFAULT 'active';
+                """))
+                conn.commit()
+    except Exception:
+        pass
+
+    try:
         # Check if CropStandards are seeded
         if CropStandard.query.count() == 0:
             from seed_crops import seed_database

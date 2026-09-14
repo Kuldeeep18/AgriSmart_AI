@@ -274,13 +274,6 @@
             if (menu.classList.contains('hidden')) menu.classList.remove('hidden');
             else menu.classList.add('hidden');
         });
-        document.getElementById('chatbot-close-btn')?.addEventListener('click', function () {
-            const chatbotWindow = document.getElementById('chatbot-window');
-            if (!chatbotWindow.classList.contains('hidden')) {
-                chatbotWindow.classList.add('hidden');
-                chatbotWindow.classList.remove('d-flex');
-            }
-        });
     </script>
 
     {% block js %}{% endblock %}
