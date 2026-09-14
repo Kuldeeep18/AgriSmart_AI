@@ -5,19 +5,13 @@
 <br/>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/SIH%202026-Winner%20Track-22c55e?style=for-the-badge&logo=leaf&logoColor=white" />
-  <img src="https://img.shields.io/badge/Model%20Accuracy-98.73%25-16a34a?style=for-the-badge&logo=pytorch&logoColor=white" />
-  <img src="https://img.shields.io/badge/Macro--F1-97.97%25-15803d?style=for-the-badge&logo=scikit-learn&logoColor=white" />
+  <img src="https://img.shields.io/badge/SIH--2026--Internal--Hackathon-22c55e?style=for-the-badge&logo=trophy&logoColor=white" />
+  <img src="https://img.shields.io/badge/LJIET-Institution-16a34a?style=for-the-badge&logo=mortarboard&logoColor=white" />
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/AI%2FML-EfficientNet--B4-a855f7?style=for-the-badge&logo=tensorflow&logoColor=white" />
   <img src="https://img.shields.io/badge/Tests-17%2F17%20Passing-4ade80?style=for-the-badge&logo=pytest&logoColor=white" />
-  <img src="https://img.shields.io/badge/Dataset-56%2C849%20Images-84cc16?style=for-the-badge&logo=databricks&logoColor=white" />
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white" />
   <img src="https://img.shields.io/badge/PyTorch-2.0-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" />
-  <img src="https://img.shields.io/badge/Scikit--Learn-1.3-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white" />
-  <img src="https://img.shields.io/badge/OpenAI-GPT--4-412991?style=for-the-badge&logo=openai&logoColor=white" />
-  <img src="https://img.shields.io/badge/GPU-RTX%204050-76B900?style=for-the-badge&logo=nvidia&logoColor=white" />
 </p>
 
 <br/>
