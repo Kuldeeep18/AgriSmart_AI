@@ -188,19 +188,19 @@ India loses **₹90,000 crore+** annually to undetected crop diseases. Small and
 
 ## 🌍 Real-World Testing Results
 
-The model was tested on **real-world leaf images** sourced from Google and Wikimedia Commons — images it was never trained on:
+Tested on **real-world images** from Google & Wikimedia — never seen during training:
 
-| Image | Actual Disease | AI Prediction | Confidence | Guidance |
-|:------|:--------------|:-------------|:----------:|:---------|
-| `google_grape_black_rot.jpg` | Grape Black Rot | `Grape___Black_rot` ✅ | **96.2%** | Isolate affected material, apply copper fungicide |
-| `google_corn_blight.jpg` | Northern Corn Leaf Blight | `Corn_(maize)___Northern_Leaf_Blight` ✅ | **88.9%** | Remove symptomatic leaves, improve crop spacing |
-| `google_tomato_septoria.jpg` | Tomato Septoria Leaf Spot | `Tomato___Septoria_leaf_spot` ✅ | 51.8% | Prune lower infected leaves, sanitize tools |
-| `google_potato_late_blight.jpg` | Potato Late Blight | `Potato___Late_blight` ✅ | 44.0% | Emergency blight protocol, avoid overhead watering |
-| `google_tomato_late_blight.jpg` | Tomato Late Blight | `Tomato___Late_blight` ✅ | 33.3% | Quarantine plot, apply protective systemic spray |
-| `google_citrus_healthy.jpg` | Healthy Citrus Foliage | `Healthy Foliage` ✅ | **92.1%** | Routine monitoring and balanced NPK |
-| `test_non_plant_laptop.jpg` | Laptop (Non-plant) | `Non-Plant / Unclear Image` 🛡️ | 0.0% | **Quality Gate rejected** — 0% foliage pixels |
+| Crop & Disease | AI Prediction | Confidence | Result |
+|:--------------|:-------------|:----------:|:------:|
+| Grape Black Rot | `Grape___Black_rot` | **96.2%** | ✅ Correct |
+| Northern Corn Leaf Blight | `Corn___Northern_Leaf_Blight` | **88.9%** | ✅ Correct |
+| Tomato Septoria Leaf Spot | `Tomato___Septoria_leaf_spot` | 51.8% | ✅ Correct |
+| Potato Late Blight | `Potato___Late_blight` | 44.0% | ✅ Correct |
+| Tomato Late Blight | `Tomato___Late_blight` | 33.3% | ✅ Correct |
+| Healthy Citrus Foliage | `Healthy Foliage` | **92.1%** | ✅ Correct |
+| Laptop (Non-plant) | `Non-Plant / Unclear` | 0.0% | 🛡️ Quality Gate Rejected |
 
-**7/7 real-world predictions correct, including a non-plant image correctly rejected by the Quality Gate.**
+> **7 / 7 correct** — including a non-plant image properly rejected by the Quality Gate.
 
 ---
 
@@ -334,60 +334,16 @@ lj_internal/
 ├── docs/
 │   ├── demo-preview.jpg      # Demo thumbnail
 │   ├── WALKTHROUGH.md        # Complete implementation walkthrough
-│   ├── REPOSITORY_AUDIT.md   # Reference audit & gap analysis
 │   └── infographical-poster.png
 └── requirements.txt
 ```
 
 ---
 
-## 🛡️ Data Integrity & Governance
-
-| Protocol | Implementation |
-|:---------|:---------------|
-| **No label invention** | Class names read verbatim from organizer data; no custom labels |
-| **Held-out test governance** | Test data never enters training or tuning paths |
-| **Zero cross-split leakage** | Multi-threaded SHA-256 hash deduplication, verified |
-| **Reproducible splits** | Stratified 80/20, seed `2026`, recorded in manifest |
-| **Training provenance** | Full config capture per training run |
-| **Metric honesty** | Organizer-held-out results reported only when returned by organizers |
-| **Evaluation artifacts** | Metrics JSON, CSV, raw + normalized confusion matrices per run |
-
----
-
-## 📜 References & Originality
-
-Reference repositories were studied for architectural concepts only — no code, weights, UI, or database code was reused:
-
-- [GrowSense-AI](https://github.com/shivam-shukla11/GrowSense-AI) — ESP32-CAM capture UX concept
-- [Predictive-Plant-Care-System](https://github.com/shivam-shukla11/Predictive-Plant-Care-System) — lazy-load lock pattern concept
-
-See [`docs/REPOSITORY_AUDIT.md`](docs/REPOSITORY_AUDIT.md) for the complete gap analysis and component classification.
-
----
-
-## 👨‍💻 Team
-
 <div align="center">
 
-| Role | Member |
-|:-----|:-------|
-| **Team Lead** | Sandip Patel |
-| **ML Engineer** | — |
-| **Backend Engineer** | — |
-| **Frontend / UI** | — |
-| **IoT Integration** | — |
+**Built with 🌿 for India's farmers**
 
-*SIH 2026 — Problem Statement 1: AGRISMART AI*
-
-</div>
-
----
-
-<div align="center">
-
-**Built with 🌿 for India’s farmers**
-
-*AgriSmart AI FieldGuard — SIH 2026*
+*AgriSmart AI FieldGuard — SIH 2026 | LJIET*
 
 </div>
