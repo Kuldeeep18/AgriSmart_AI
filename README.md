@@ -24,7 +24,7 @@
 
 ---
 
-## 🎬 Demo
+## 🎬 Demo Video
 
 > **Watch FieldGuard in action** — disease detection, irrigation advisory, crop recommendation, community forum, and AI chatbot, all in one seamless flow.
 
@@ -34,6 +34,25 @@
 
 **[▶ Watch Full Demo on Google Drive](https://drive.google.com/file/d/16fuXg1BWC_HllbZZbP8hGMlMBU02us40/view)**
 
+</div>
+
+---
+
+## 🖼️ Project Posters
+
+<div align="center">
+<table>
+  <tr>
+    <td align="center" width="50%">
+      <img src="docs/infographical-poster.png" alt="Infographical Poster" width="100%" />
+      <br/><sub><b>Infographical Poster</b></sub>
+    </td>
+    <td align="center" width="50%">
+      <img src="docs/informative-poster.png" alt="Informative Poster" width="100%" />
+      <br/><sub><b>Informative Poster</b></sub>
+    </td>
+  </tr>
+</table>
 </div>
 
 ---
@@ -49,8 +68,6 @@
 - [Quick Start](#-quick-start)
 - [Platform Subsystem Tests](#-platform-subsystem-tests)
 - [Project Structure](#-project-structure)
-- [Data Integrity & Governance](#-data-integrity--governance)
-- [Team](#-team)
 
 ---
 
