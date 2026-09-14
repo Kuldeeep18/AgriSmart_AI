@@ -30,7 +30,7 @@
 
 <div align="center">
 
-[![Watch the Demo ▶](docs/demo-preview.jpg)](https://drive.google.com/file/d/16fuXg1BWC_HllbZZbP8hGMlMBU02us40/view)
+[![Watch the Demo ▶](docs/Cover-preview-photo-for-video-display.png)](https://drive.google.com/file/d/16fuXg1BWC_HllbZZbP8hGMlMBU02us40/view)
 
 **[▶ Watch Full Demo on Google Drive](https://drive.google.com/file/d/16fuXg1BWC_HllbZZbP8hGMlMBU02us40/view)**
 
