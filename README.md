@@ -69,35 +69,44 @@ India loses **₹90,000 crore+** annually to undetected crop diseases. Small and
 
 ## 🏗️ Solution Architecture
 
-```
-+---------------------------------------------------------------------+
-|                        AgriSmart AI -- FieldGuard                   |
-|                                                                     |
-|  +--------------+    +----------------------------------------+  |
-|  | Farmer Input |    |           Core ML Engine               |  |
-|  |              |--->|  EfficientNet-B4 (Transfer Learning)   |  |
-|  |  Upload      |    |  38-class PlantVillage + PlantDoc      |  |
-|  |  Webcam      |    |  AMP fp16 . CosineAnnealingLR         |  |
-|  |  ESP32-CAM   |    |  Quality Gate . Calibration . GradCAM |  |
-|  +--------------+    +------------------+---------------------+  |
-|                                         | Disease Label           |
-|                      +------------------v---------------------+  |
-|                      |         Advisory Context Layer         |  |
-|                      |                                        |  |
-|   +---------------------+  +--------------+  +------------+  |  |
-|   | Smart Irrigation     |  | Crop Reco    |  | Farm Ops   |  |  |
-|   |  Weather-Aware Rules |  | Random Forest|  | Growth     |  |  |
-|   |  Sustainability Score|  | ML Classifier|  | Alert Eng  |  |  |
-|   +---------------------+  +--------------+  +------------+  |  |
-|                      |                                        |  |
-|                      +------------------+---------------------+  |
-|                                         |                         |
-|          +------------------------------ v-------------------+    |
-|          |          Farmer-Facing Layer                      |    |
-|          |  AI Chatbot    Community Forum    PDF Reports     |    |
-|          |  (GPT-4)       Post+Upvote        Farm Export    |    |
-|          +---------------------------------------------------+    |
-+---------------------------------------------------------------------+
+```mermaid
+flowchart TD
+    subgraph INPUT["📱 Farmer Input"]
+        A1[📷 Image Upload]
+        A2[🌐 Webcam Capture]
+        A3[📡 ESP32-CAM IoT]
+    end
+
+    subgraph ML["🧠 Core ML Engine — EfficientNet-B4"]
+        B1[🛡️ Quality Gate\nfoliage pixel check]
+        B2[🔬 Disease Classifier\n38-class · 98.73% accuracy]
+        B3[📊 Calibration + GradCAM\ntop-3 confidence · heatmap]
+    end
+
+    subgraph ADVISORY["⚙️ Advisory Context Layer"]
+        C1[💧 Smart Irrigation\nWeather-aware · Sustainability Score]
+        C2[🌱 Crop Recommendation\nRandom Forest · NPK + pH]
+        C3[📈 Farm Operations\nGrowth Stage · Alert Engine]
+    end
+
+    subgraph FARMER["👨‍🌾 Farmer-Facing Layer"]
+        D1[🤖 AI Chatbot\nGPT-4 Grounded]
+        D2[👥 Community Forum\nPost · Answer · Upvote]
+        D3[📄 PDF Reports\nFarm Health Export]
+    end
+
+    A1 & A2 & A3 --> B1
+    B1 -->|✅ Valid Plant Image| B2
+    B1 -->|❌ Rejected| E([Non-Plant Warning])
+    B2 --> B3
+    B3 -->|Disease Label\nsource of truth| C1 & C2 & C3
+    C1 & C2 & C3 --> D1 & D2 & D3
+
+    style INPUT fill:#14532d,color:#fff,stroke:#22c55e
+    style ML fill:#1e3a5f,color:#fff,stroke:#3b82f6
+    style ADVISORY fill:#3b1f5e,color:#fff,stroke:#a855f7
+    style FARMER fill:#7c2d12,color:#fff,stroke:#f97316
+    style E fill:#7f1d1d,color:#fff,stroke:#ef4444
 ```
 
 ### Core Architectural Principle
