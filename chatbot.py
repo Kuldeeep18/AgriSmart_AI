@@ -30,20 +30,34 @@ def chatbot():
                 api_key=api_key,
                 base_url=os.getenv("AI_BASE_URL", "https://api.groq.com/openai/v1")
             )
-            completion = client.chat.completions.create(
-                model=os.getenv("AI_MODEL", "llama-3.1-8b-instant"), 
-                messages=[
-                    {
-                        "role": "system", 
-                        "content": "You are BioGrow AI, an expert agricultural consultant. Provide concise, clear, and practical advice for farmers on crops, fertilizers, irrigation, weather adaptation, and pest management."
-                    },
-                    {"role": "user", "content": user_question}
-                ],
-                max_tokens=450,
-                temperature=0.3
-            )
-            bot_reply = completion.choices[0].message.content
-            return jsonify({"response": bot_reply})
+            
+            configured_model = os.getenv("AI_MODEL")
+            candidate_models = []
+            if configured_model:
+                candidate_models.append(configured_model)
+            candidate_models.extend(["groq/compound", "groq/compound-mini", "qwen/qwen3.6-27b"])
+            
+            bot_reply = None
+            for model_name in candidate_models:
+                try:
+                    completion = client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {
+                                "role": "system", 
+                                "content": "You are BioGrow AI, an expert agricultural consultant. Provide concise, clear, and practical advice for farmers on crops, fertilizers, irrigation, weather adaptation, and pest management."
+                            },
+                            {"role": "user", "content": user_question}
+                        ],
+                        max_tokens=450,
+                        temperature=0.3
+                    )
+                    bot_reply = completion.choices[0].message.content
+                    if bot_reply:
+                        return jsonify({"response": bot_reply})
+                except Exception as model_err:
+                    # Try next candidate model
+                    continue
         except Exception as e:
             # Fall back to knowledge base
             pass
