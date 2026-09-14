@@ -41,18 +41,15 @@
 ## 🖼️ Project Posters
 
 <div align="center">
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <img src="docs/infographical-poster.png" alt="Infographical Poster" width="100%" />
-      <br/><sub><b>Infographical Poster</b></sub>
-    </td>
-    <td align="center" width="50%">
-      <img src="docs/informative-poster.png" alt="Informative Poster" width="100%" />
-      <br/><sub><b>Informative Poster</b></sub>
-    </td>
-  </tr>
-</table>
+
+<img src="docs/infographical-poster.png" alt="Infographical Poster" width="60%" />
+<br/><sub><b>Infographical Poster</b></sub>
+
+<br/><br/>
+
+<img src="docs/informative-poster.png" alt="Informative Poster" width="100%" />
+<br/><sub><b>Informative Poster</b></sub>
+
 </div>
 
 ---
