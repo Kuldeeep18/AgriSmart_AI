@@ -30,9 +30,9 @@
 
 <div align="center">
 
-[![Watch the Demo ▶](docs/Cover-preview-photo-for-video-display.png)](https://drive.google.com/file/d/16fuXg1BWC_HllbZZbP8hGMlMBU02us40/view)
+[![Watch the Demo ▶](docs/Cover-preview-photo-for-video-display.png)](https://drive.google.com/file/d/1wgkK8VPVlKL9BEq5k79xQ0xYlaEQAq2D/view?usp=drivesdk)
 
-**[▶ Watch Full Demo on Google Drive](https://drive.google.com/file/d/16fuXg1BWC_HllbZZbP8hGMlMBU02us40/view)**
+**[▶ Watch Full Demo on Google Drive](https://drive.google.com/file/d/1wgkK8VPVlKL9BEq5k79xQ0xYlaEQAq2D/view?usp=drivesdk)**
 
 </div>
 
